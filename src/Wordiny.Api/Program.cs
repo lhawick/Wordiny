@@ -1,8 +1,10 @@
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
 using Wordiny.Api.Config;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,21 +19,27 @@ builder.Logging.AddDebug();
 
 builder.Services.Configure<BotConfig>(builder.Configuration.GetSection(nameof(BotConfig)));
 
-builder.Services.AddHttpClient();
-builder.Services.AddSingleton<ITelegramBotClient, TelegramBotClient>(services =>
-{
-    var botConfig = services.GetRequiredService<IOptions<BotConfig>>().Value;
-    var httpClient = services.GetRequiredService<IHttpClientFactory>().CreateClient();
-    var botOptions = new TelegramBotClientOptions(botConfig.BotToken, botConfig.Host, builder.Environment.IsDevelopment());
+var webHookUrl = builder.Configuration["BotConfig:BotWebHookUrl"] ?? throw new Exception("Web hook url is not provided");
+var botToken = builder.Configuration["BotConfig:BotToken"] ?? throw new Exception("BotToken is not provided");
 
-    return new TelegramBotClient(botOptions, httpClient);
-});
+builder.Services
+    .AddHttpClient("tgwebhook")
+    .AddTypedClient(httpClient => new TelegramBotClient(botToken, httpClient));
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 
-app.MapPost("/update", (Update update, ILogger<Program> logger, CancellationToken token = default) =>
+app.MapPost("/update", OnUpdate);
+
+app.UseHttpsRedirection();
+app.Run();
+
+async Task OnUpdate(
+    Update update, 
+    ILogger<Program> logger,
+    TelegramBotClient bot,
+    CancellationToken token = default)
 {
 
 #if DEBUG
@@ -46,8 +54,11 @@ app.MapPost("/update", (Update update, ILogger<Program> logger, CancellationToke
     logger.LogDebug($"Received an update event with type {update.Type}\n{updateAsJson}");
 #endif
 
-    return Results.Ok();
-});
+    if (update.Message is null)
+    {
+        logger.LogWarning($"Expected update type is {nameof(UpdateType.Message)}. Got {update.Type}");
+        return;
+    }
 
-app.UseHttpsRedirection();
-app.Run();
+    //await bot.SendMessage(update.Message.Chat, $"Сообщение получено: {update.Message.Text}");
+}

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
-using Telegram.Bot.Types.Enums;
 using Telegram.Bot;
+using Telegram.Bot.Types.Enums;
 using Wordiny.Api.Config;
 
 namespace Wordiny.Api.Services;
@@ -18,10 +18,9 @@ public class ConfigureWebhookService : IHostedService
 
     public async Task StartAsync(CancellationToken token = default)
     {
-        var absolutePath = $"{_botConfig.Host}/{_botConfig.UpdateRoute}";
         await _telegramBotClient.SetWebhook(
-            url: absolutePath,
-            allowedUpdates: Array.Empty<UpdateType>(),
+            url: _botConfig.BotWebHookUrl,
+            allowedUpdates: [UpdateType.Message],
             cancellationToken: token);
     }
 
