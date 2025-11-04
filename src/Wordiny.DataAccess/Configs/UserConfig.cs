@@ -4,11 +4,11 @@ using Wordiny.DataAccess.Models;
 
 namespace Wordiny.DataAccess.Configs;
 
-internal class TelegramUserConfig : IEntityTypeConfiguration<TelegramUser>
+internal class UserConfig : IEntityTypeConfiguration<User>
 {
-    public void Configure(EntityTypeBuilder<TelegramUser> builder)
+    public void Configure(EntityTypeBuilder<User> builder)
     {
-        builder.ToTable("telegram_users", "public");
+        builder.ToTable("users", "public");
 
         builder.HasKey(x => x.Id);
 

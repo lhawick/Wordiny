@@ -1,6 +1,6 @@
 ﻿namespace Wordiny.DataAccess.Models;
 
-public class TelegramUser
+public class User
 {
     public long Id { get; protected set; }
     public long ChatId { get; protected set; }
@@ -8,7 +8,10 @@ public class TelegramUser
     public bool IsDisabled { get; protected set; } = false;
     public DateTimeOffset Created { get; protected set; }
 
-    public TelegramUser(long userId, long chatId, string username)
+    public List<Phrase> Phrases { get; protected set; } = [];
+    public UserSettings? Settings { get; protected set; }
+
+    public User(long userId, long chatId, string username)
     {
         Id = userId;
         ChatId = chatId;
@@ -16,14 +19,14 @@ public class TelegramUser
         Created = DateTimeOffset.UtcNow;
     }
 
-    public TelegramUser Disable()
+    public User Disable()
     {
         IsDisabled = true;
 
         return this;
     }
 
-    public TelegramUser Enable()
+    public User Enable()
     {
         IsDisabled = false;
 

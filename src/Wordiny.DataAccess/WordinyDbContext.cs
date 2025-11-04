@@ -6,7 +6,7 @@ namespace Wordiny.DataAccess;
 
 public class WordinyDbContext : DbContext
 {
-    public DbSet<TelegramUser> Users { get; set; }
+    public DbSet<User> Users { get; set; }
     public DbSet<Phrase> Phrases { get; set; }
     public DbSet<UserSettings> UserSettings { get; set; }
 

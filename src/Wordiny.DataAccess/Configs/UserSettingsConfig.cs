@@ -17,5 +17,10 @@ internal class UserSettingsConfig : IEntityTypeConfiguration<UserSettings>
         builder.Property(x => x.RepeatFrequencyInDay).HasColumnName("frequency_in_day");
 
         builder.HasIndex(x => x.RepeatFrequencyInDay);
+
+        builder
+            .HasOne<User>()
+            .WithOne()
+            .HasForeignKey<UserSettings>(x => x.UserId);
     }
 }
