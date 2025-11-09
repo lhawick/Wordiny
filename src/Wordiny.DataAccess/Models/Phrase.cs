@@ -7,6 +7,7 @@ public class Phrase
     public string NativeText { get; protected set; } = string.Empty;
     public string TranslationText { get; protected set; } = string.Empty;
     public MemoryState MemoryState { get; protected set; }
+    public DateTimeOffset Added { get; protected set; }
 
     public Phrase(long userId, string nativeText, string translationText)
     {
@@ -17,6 +18,8 @@ public class Phrase
 
         ArgumentException.ThrowIfNullOrWhiteSpace(translationText);
         TranslationText = translationText;
+
+        Added = DateTimeOffset.UtcNow;
     }
 }
 

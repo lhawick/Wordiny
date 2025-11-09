@@ -13,12 +13,10 @@ internal class UserConfig : IEntityTypeConfiguration<User>
         builder.HasKey(x => x.Id);
 
         builder.Property(x => x.Id).HasColumnName("id");
-        builder.Property(x => x.ChatId).HasColumnName("chat_id");
-        builder.Property(x => x.Username).HasColumnName("username");
         builder.Property(x => x.IsDisabled).HasColumnName("is_disabled");
         builder.Property(x => x.Created).HasColumnName("created");
+        builder.Property(x => x.Updated).HasColumnName("updated");
 
-        builder.HasIndex(x => x.ChatId);
         builder.HasIndex(x => x.IsDisabled);
     }
 }

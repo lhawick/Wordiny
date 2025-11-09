@@ -3,25 +3,26 @@
 public class User
 {
     public long Id { get; protected set; }
-    public long ChatId { get; protected set; }
-    public string Username { get; protected set; } = string.Empty;
     public bool IsDisabled { get; protected set; } = false;
     public DateTimeOffset Created { get; protected set; }
+    public DateTimeOffset Updated { get; protected set; }
 
-    public List<Phrase> Phrases { get; protected set; } = [];
+    private readonly List<Phrase> _phrases = [];
+    public IEnumerable<Phrase> Phrases => _phrases.AsEnumerable();
+
     public UserSettings? Settings { get; protected set; }
 
-    public User(long userId, long chatId, string username)
+    public User(long userId)
     {
         Id = userId;
-        ChatId = chatId;
-        Username = username;
         Created = DateTimeOffset.UtcNow;
+        Updated = DateTimeOffset.UtcNow;
     }
 
     public User Disable()
     {
         IsDisabled = true;
+        Updated = DateTimeOffset.UtcNow;
 
         return this;
     }
@@ -29,6 +30,7 @@ public class User
     public User Enable()
     {
         IsDisabled = false;
+        Updated = DateTimeOffset.UtcNow;
 
         return this;
     }
