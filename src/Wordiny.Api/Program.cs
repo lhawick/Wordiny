@@ -2,8 +2,8 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Telegram.Bot;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.Enums;
 using Wordiny.Api.Config;
+using Wordiny.Api.Filters;
 using Wordiny.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,7 +23,6 @@ builder.Logging.AddDebug();
 
 builder.Services.Configure<BotConfig>(builder.Configuration.GetSection(nameof(BotConfig)));
 
-var webHookUrl = builder.Configuration["BotConfig:BotWebHookUrl"] ?? throw new InvalidOperationException("Web hook url is not provided");
 var botToken = builder.Configuration["BotConfig:BotToken"] ?? throw new InvalidOperationException("BotToken is not provided");
 
 builder.Services
@@ -31,20 +30,30 @@ builder.Services
     .AddTypedClient(httpClient => new TelegramBotClient(botToken, httpClient));
 
 builder.Services.AddHostedService<ConfigureWebhookService>();
+builder.Services.AddMemoryCache();
+
+// handlers
+builder.Services.AddScoped<IUpdateHandler, UpdateHandler>();
+builder.Services.AddScoped<IMessageHandler, MessageHandler>();
+
+// services
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IUserSettingsService, UserSettingsService>();
+builder.Services.AddScoped<ITelegramApiService, TelegramApiService>();
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 app.UseHttpsRedirection();
 
-app.MapPost("/update", OnUpdate);
+app.MapPost("/update", OnUpdate).AddEndpointFilter<ExceptionFilter>();
 
 app.Run();
 
-async Task OnUpdate(
+async Task<IResult> OnUpdate(
     Update update, 
     ILogger<Program> logger,
-    TelegramBotClient bot,
+    IUpdateHandler updateHandler,
     CancellationToken token = default)
 {
 
@@ -55,13 +64,14 @@ async Task OnUpdate(
     logger.LogDebug("Received an update event with type {updateType}\n{json}", update.Type, updateAsJson);
 #endif
 
-    if (update.Message is null)
+    if (update is null)
     {
-        logger.LogWarning("Expected update type is {messageUpdateType}. Got {updateType}", nameof(UpdateType.Message), update.Type);
-        return;
+        logger.LogError("Received empty update message");
+
+        return Results.Ok();
     }
 
-    //await bot.SendMessage(update.Message.Chat, $"Сообщение получено: {update.Message.Text}");
+    await updateHandler.HandleAsync(update, token);
 
-    await Task.CompletedTask;
+    return Results.Ok();
 }
