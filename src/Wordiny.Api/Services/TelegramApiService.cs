@@ -8,7 +8,7 @@ namespace Wordiny.Api.Services;
 
 public interface ITelegramApiService
 {
-    public Task SendMessageAsync(long userId, string message, CancellationToken token = default);
+    public Task SendMessageAsync(long userId, string message, bool useCache = true, CancellationToken token = default);
 }
 
 public class TelegramApiService : ITelegramApiService
@@ -30,14 +30,14 @@ public class TelegramApiService : ITelegramApiService
         _memoryCache = memoryCache;
     }
 
-    public async Task SendMessageAsync(long userId, string message, CancellationToken token = default)
+    public async Task SendMessageAsync(long userId, string message, bool useCache = true, CancellationToken token = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(message, nameof(message));
 
         try
         {
             // Экранируем определённые символы для MarkdownV2
-            var screeningMessage = GetScreeningMessage(message);
+            var screeningMessage = GetScreeningMessage(message, useCache);
 
             await _botClient.SendMessage(userId, screeningMessage, ParseMode.MarkdownV2, cancellationToken: token);
         }
@@ -63,10 +63,10 @@ public class TelegramApiService : ITelegramApiService
         ">", "#", "+", "-", "=", "|", "{", "}", ".", "!"
     ];
 
-    private string GetScreeningMessage(string message)
+    private string GetScreeningMessage(string message, bool useCache)
     {
         var cacheKey = GetMd5Hash(message);
-        if (_memoryCache.TryGetValue<string>(cacheKey, out var screeningMessage) 
+        if (useCache && _memoryCache.TryGetValue<string>(cacheKey, out var screeningMessage) 
             && screeningMessage is not null)
         {
             return screeningMessage;
@@ -81,7 +81,10 @@ public class TelegramApiService : ITelegramApiService
 
         screeningMessage = stringBuilder.ToString();
 
-        _memoryCache.Set(cacheKey, screeningMessage, TimeSpan.FromMinutes(30));
+        if (useCache)
+        {
+            _memoryCache.Set(cacheKey, screeningMessage, TimeSpan.FromMinutes(30));
+        }
 
         return screeningMessage;
     }
