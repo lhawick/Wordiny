@@ -1,10 +1,13 @@
+using System.Data.Common;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Wordiny.Api.Config;
+using Wordiny.Api.Exceptions;
 using Wordiny.Api.Filters;
 using Wordiny.Api.Services;
+using Wordiny.DataAccess;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +15,8 @@ var jsonSerializerOptions = new JsonSerializerOptions
 {
     WriteIndented = true
 };
+
+var exceptionsTypesToRetryUpdate = new Type[] { typeof(DbException), typeof(TelegramSendMessageException) };
 
 // Logging
 
@@ -51,9 +56,11 @@ app.MapPost("/update", OnUpdate).AddEndpointFilter<ExceptionFilter>();
 app.Run();
 
 async Task<IResult> OnUpdate(
-    Update update, 
+    Update update,
     ILogger<Program> logger,
     IUpdateHandler updateHandler,
+    WordinyDbContext db,
+    IUserService userService,
     CancellationToken token = default)
 {
 
@@ -71,7 +78,46 @@ async Task<IResult> OnUpdate(
         return Results.Ok();
     }
 
-    await updateHandler.HandleAsync(update, token);
+    var transaction = await db.Database.BeginTransactionAsync(token);
+
+    try
+    {
+        await updateHandler.HandleAsync(update, token);
+        await transaction.CommitAsync(token);
+    }
+    catch (UserUndeliverableException ex)
+    {
+        logger.LogError(ex, "User {userId} undeliverable: {errorMessage}", ex.UserId, ex.Message);
+
+        await transaction.RollbackAsync(token);
+        db.ChangeTracker.Clear();
+
+        if (ex.IsDeleted)
+        {
+            await userService.DeleteUserAsync(ex.UserId, CancellationToken.None);
+        }
+        else
+        {
+            await userService.DisabledUserAsync(ex.UserId, CancellationToken.None);
+        }
+
+        await db.SaveChangesAsync(CancellationToken.None);
+
+        return Results.Ok();
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "Exception occured: {errorMessage}", ex.Message);
+        await transaction.RollbackAsync(token);
+
+        var exceptionType = ex.GetType();
+        if (exceptionsTypesToRetryUpdate.Contains(exceptionType))
+        {
+            return Results.InternalServerError();
+        }
+
+        return Results.Ok();
+    }
 
     return Results.Ok();
 }

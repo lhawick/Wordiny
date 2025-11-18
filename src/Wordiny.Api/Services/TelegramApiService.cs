@@ -3,12 +3,17 @@ using System.Security.Cryptography;
 using System.Text;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
+using Wordiny.Api.Exceptions;
 
 namespace Wordiny.Api.Services;
 
 public interface ITelegramApiService
 {
-    public Task SendMessageAsync(long userId, string message, bool useCache = true, CancellationToken token = default);
+    public Task<Telegram.Bot.Types.Message> SendMessageAsync(
+        long userId, 
+        string message, 
+        bool useCache = true, 
+        CancellationToken token = default);
 }
 
 public class TelegramApiService : ITelegramApiService
@@ -30,7 +35,11 @@ public class TelegramApiService : ITelegramApiService
         _memoryCache = memoryCache;
     }
 
-    public async Task SendMessageAsync(long userId, string message, bool useCache = true, CancellationToken token = default)
+    public async Task<Telegram.Bot.Types.Message> SendMessageAsync(
+        long userId, 
+        string message, 
+        bool useCache = true, 
+        CancellationToken token = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(message, nameof(message));
 
@@ -39,21 +48,21 @@ public class TelegramApiService : ITelegramApiService
             // Экранируем определённые символы для MarkdownV2
             var screeningMessage = GetScreeningMessage(message, useCache);
 
-            await _botClient.SendMessage(userId, screeningMessage, ParseMode.MarkdownV2, cancellationToken: token);
+            return await _botClient.SendMessage(userId, screeningMessage, ParseMode.MarkdownV2, cancellationToken: token);
         }
         catch (Exception ex)
         {
-            _logger.LogError("Failed to send message to user {userId}: {errorMessage}", userId, ex.Message);
-
             // https://stackoverflow.com/questions/35263618/how-can-i-detect-whether-a-user-deletes-the-telegram-bot-chat
             if (ex.Message.Contains("blocked"))
             {
-                await _userService.DisabledUser(userId, token);
+                throw new UserUndeliverableException(userId, isDeleted: false, ex.Message);
             }
             else if (ex.Message.Contains("deactivated"))
             {
-                await _userService.DeleteUserAsync(userId, token);
+                throw new UserUndeliverableException(userId, isDeleted: true, ex.Message);
             }
+
+            throw new TelegramSendMessageException(userId, ex.Message);
         }
     }
 

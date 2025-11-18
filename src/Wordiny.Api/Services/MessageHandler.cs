@@ -1,6 +1,7 @@
 ﻿using Telegram.Bot;
 using Wordiny.Api.Helpers;
 using Wordiny.Api.Models;
+using Wordiny.Api.Resources;
 
 namespace Wordiny.Api.Services;
 
@@ -41,21 +42,27 @@ public class MessageHandler : IMessageHandler
 
     private async Task HandleBotCommandAsync(Message message, CancellationToken token = default)
     {
+        var userId = message.UserId;
+
         switch (message.Text)
         {
             case BotCommands.START:
                 {
-                    var isUserExist = await _userService.IsUserExistAsync(message.UserId, token);
-                    if (isUserExist)
+                    var user = await _userService.GetUserAsync(userId, token);
+                    if (user != null)
                     {
-                        break;
+                        if (user.IsDisabled)
+                        {
+                            await _userService.EnableUserAsync(userId, token);
+                            await _telegramApiService.SendMessageAsync(userId, BotMessages.UserReturn, token: token);
+
+                            break;
+                        }
                     }
 
-                    await _userService.AddUserAsync(message.UserId, token);
-
-                    await _telegramApiService.SendMessageAsync(message.UserId);
-
-                    await _userSettingsService.StartSetupAsync(message.UserId, token);
+                    await _userService.AddUserAsync(userId, token);
+                    await _telegramApiService.SendMessageAsync(userId, BotMessages.Welcome, token: token);
+                    await _userSettingsService.StartSetupAsync(userId, token);
 
                     break;
                 }

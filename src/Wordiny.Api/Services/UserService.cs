@@ -5,11 +5,12 @@ namespace Wordiny.Api.Services;
 
 public interface IUserService
 {
+    Task<User?> GetUserAsync(long userId, CancellationToken token = default);
     Task<bool> IsUserExistAsync(long userId, CancellationToken token = default);
     Task AddUserAsync(long userId, CancellationToken token = default);
     Task DeleteUserAsync(long userId, CancellationToken token = default);
-    Task EnableUser(long userId, CancellationToken token = default);
-    Task DisabledUser(long userId, CancellationToken token = default);
+    Task EnableUserAsync(long userId, CancellationToken token = default);
+    Task DisabledUserAsync(long userId, CancellationToken token = default);
 }
 
 public class UserService : IUserService
@@ -21,6 +22,11 @@ public class UserService : IUserService
     {
         _db = db;
         _logger = logger;
+    }
+
+    public Task<User?> GetUserAsync(long userId, CancellationToken token = default)
+    {
+        throw new NotImplementedException();
     }
 
     public Task<bool> IsUserExistAsync(long userId, CancellationToken token = default)
@@ -45,12 +51,12 @@ public class UserService : IUserService
         throw new NotImplementedException();
     }
 
-    public Task EnableUser(long userId, CancellationToken token = default)
+    public Task EnableUserAsync(long userId, CancellationToken token = default)
     {
         throw new NotImplementedException();
     }
 
-    public Task DisabledUser(long userId, CancellationToken token = default)
+    public Task DisabledUserAsync(long userId, CancellationToken token = default)
     {
         throw new NotImplementedException();
     }

@@ -1,4 +1,5 @@
 ﻿using Wordiny.Api.Models;
+using Wordiny.DataAccess;
 
 namespace Wordiny.Api.Services;
 
@@ -11,13 +12,16 @@ public class UpdateHandler : IUpdateHandler
 {
     private readonly ILogger<UpdateHandler> _logger;
     private readonly IMessageHandler _messageHandler;
+    private readonly WordinyDbContext _db;
 
     public UpdateHandler(
         ILogger<UpdateHandler> logger,
-        IMessageHandler messageHandler)
+        IMessageHandler messageHandler,
+        WordinyDbContext db)
     {
         _logger = logger;
         _messageHandler = messageHandler;
+        _db = db;
     }
 
     public async Task HandleAsync(Telegram.Bot.Types.Update update, CancellationToken token = default)

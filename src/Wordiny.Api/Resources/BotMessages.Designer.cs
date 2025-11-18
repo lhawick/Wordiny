@@ -61,7 +61,7 @@ namespace Wordiny.Api.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Укажите ваше смещение часового пояса числом \(к примеру для москвы это 3\)\nЭто нужно для того, чтобы бот не писал вам ночью.
+        ///   Looks up a localized string similar to Пожалуйста, укажите ваше смещение часового пояса числом (к примеру для москвы это 3)\nЭто нужно для того, чтобы бот не писал вам ночью.
         /// </summary>
         public static string SetupTimeZone {
             get {
@@ -70,7 +70,18 @@ namespace Wordiny.Api.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Добро пожаловать\!.
+        ///   Looks up a localized string similar to С возвращением!.
+        /// </summary>
+        public static string UserReturn {
+            get {
+                return ResourceManager.GetString("UserReturn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Добро пожаловать!
+        ///
+        ///Этот бот создан для того, чтобы помогать учить и повторять иностранные слова за счёт отправки уведомлений с определённой периодичностью.
         /// </summary>
         public static string Welcome {
             get {
