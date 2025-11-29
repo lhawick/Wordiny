@@ -117,8 +117,14 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Settuped" xml:space="preserve">
+    <value>Настройка завершена! Теперь можно полноценно пользоваться ботом</value>
+  </data>
+  <data name="SetupFrequency" xml:space="preserve">
+    <value>Пожалуйста, выберете сколько раз в день бот сможет вам писать</value>
+  </data>
   <data name="SetupTimeZone" xml:space="preserve">
-    <value>Пожалуйста, укажите ваше смещение часового пояса числом (к примеру для москвы это 3)\nЭто нужно для того, чтобы бот не писал вам ночью</value>
+    <value>Пожалуйста, укажите ваше смещение часового пояса числом (к примеру для москвы это 3)\nЭто необходимо для того, чтобы бот не писал вам ночью</value>
   </data>
   <data name="UserReturn" xml:space="preserve">
     <value>С возвращением!</value>

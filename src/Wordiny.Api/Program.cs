@@ -35,7 +35,9 @@ builder.Services
     .AddTypedClient(httpClient => new TelegramBotClient(botToken, httpClient));
 
 builder.Services.AddHostedService<ConfigureWebhookService>();
+
 builder.Services.AddMemoryCache();
+builder.Services.AddScoped<ICacheService, CacheService>();
 
 // handlers
 builder.Services.AddScoped<IUpdateHandler, UpdateHandler>();
@@ -61,6 +63,7 @@ async Task<IResult> OnUpdate(
     IUpdateHandler updateHandler,
     WordinyDbContext db,
     IUserService userService,
+    ICacheService cacheService,
     CancellationToken token = default)
 {
 
@@ -84,6 +87,8 @@ async Task<IResult> OnUpdate(
     {
         await updateHandler.HandleAsync(update, token);
         await transaction.CommitAsync(token);
+
+        cacheService.Flush();
     }
     catch (UserUndeliverableException ex)
     {

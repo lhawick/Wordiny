@@ -61,7 +61,25 @@ namespace Wordiny.Api.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Пожалуйста, укажите ваше смещение часового пояса числом (к примеру для москвы это 3)\nЭто нужно для того, чтобы бот не писал вам ночью.
+        ///   Looks up a localized string similar to Настройка завершена! Теперь можно полноценно пользоваться ботом.
+        /// </summary>
+        public static string Settuped {
+            get {
+                return ResourceManager.GetString("Settuped", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Пожалуйста, выберете сколько раз в день бот сможет вам писать.
+        /// </summary>
+        public static string SetupFrequency {
+            get {
+                return ResourceManager.GetString("SetupFrequency", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Пожалуйста, укажите ваше смещение часового пояса числом (к примеру для москвы это 3)\nЭто необходимо для того, чтобы бот не писал вам ночью.
         /// </summary>
         public static string SetupTimeZone {
             get {

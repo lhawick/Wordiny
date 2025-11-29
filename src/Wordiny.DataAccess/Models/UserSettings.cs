@@ -1,25 +1,64 @@
-﻿namespace Wordiny.DataAccess.Models;
+﻿using System.ComponentModel;
+
+namespace Wordiny.DataAccess.Models;
 
 public class UserSettings
 {
     public long UserId { get; protected set; }
-    public SettingsSetupStep SettingsSetupStep { get; protected set; }
-    public RepeatFrequencyInDay RepeatFrequencyInDay { get; protected set; }
+    public SettingsStep SettingsSetupStep { get; protected set; }
+
+    private RepeatFrequencyInDay _repeatFrequencyInDay;
+    public RepeatFrequencyInDay RepeatFrequencyInDay 
+    { 
+        get { return _repeatFrequencyInDay; }
+        set
+        {
+            if (!Enum.IsDefined(value))
+            {
+                throw new InvalidEnumArgumentException(nameof(RepeatFrequencyInDay), (int)value, typeof(RepeatFrequencyInDay));
+            }
+            
+            _repeatFrequencyInDay = value;
+        } 
+    }
+
+    private short? _timezone;
+    public short? Timezone 
+    { 
+        get { return _timezone; }
+        set
+        {
+            if (value is null || value < -12 || value > 14)
+            {
+                throw new ArgumentException($"Timezone doesn`t exist: {value}", nameof(Timezone));
+            }
+
+            _timezone = value;
+        }
+    }
 
     public UserSettings(
         long userId, 
-        SettingsSetupStep settingsStep = SettingsSetupStep.NoSetting, 
+        SettingsStep settingsStep = SettingsStep.NoSettings, 
         RepeatFrequencyInDay frequencyInDay = RepeatFrequencyInDay.None)
     {
         UserId = userId;
         SettingsSetupStep = settingsStep;
         RepeatFrequencyInDay = frequencyInDay;
     }
+
+    public void NextSettingsStep()
+    {
+        if (SettingsSetupStep < SettingsStep.Setupped)
+        {
+            SettingsSetupStep++;
+        }
+    }
 }
 
-public enum SettingsSetupStep : byte
+public enum SettingsStep : byte
 {
-    NoSetting = 0,
+    NoSettings = 0,
     SetTimeZone = 1,
     SetFrequence = 2,
     Setupped = 4
