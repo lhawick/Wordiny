@@ -28,28 +28,33 @@ public class UpdateHandler : IUpdateHandler
     {
         ArgumentNullException.ThrowIfNull(update, nameof(update));
 
-        switch (update.Type)
+        switch (update)
         {
-            case Telegram.Bot.Types.Enums.UpdateType.Message:
+            case { Message: { } msg }:
                 {
-                    if (update.Message is null)
-                    {
-                        _logger.LogError("Update message is null");
-                        break;
-                    }
-                    if (update.Message.From is null)
+                    if (msg.From is null)
                     {
                         _logger.LogError("Update message user is null");
                         break;
                     }
 
-                    if (string.IsNullOrWhiteSpace(update.Message.Text))
+                    if (string.IsNullOrWhiteSpace(msg.Text))
                     {
                         _logger.LogError("Update message text is null or empty");
                         break;
                     }
 
-                    var message = new Message(update.Message.From.Id, update.Message.Text);
+                    if (msg.Type != Telegram.Bot.Types.Enums.MessageType.Text)
+                    {
+                        _logger.LogWarning(
+                            "Message type is {messageType} instead of {expectedType}",
+                            msg.Type,
+                            Telegram.Bot.Types.Enums.MessageType.Text);
+
+                        return;
+                    }
+
+                    var message = new Message(msg.From.Id, msg.Text);
 
                     await _messageHandler.HandleAsync(message, token);
 
