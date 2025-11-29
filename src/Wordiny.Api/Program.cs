@@ -30,9 +30,10 @@ builder.Services.Configure<BotConfig>(builder.Configuration.GetSection(nameof(Bo
 
 var botToken = builder.Configuration["BotConfig:BotToken"] ?? throw new InvalidOperationException("BotToken is not provided");
 
-builder.Services
-    .AddHttpClient("tgwebhook")
-    .AddTypedClient(httpClient => new TelegramBotClient(botToken, httpClient));
+builder.Services.AddHttpClient<ITelegramBotClient, TelegramBotClient>(httpClient =>
+{
+    return new TelegramBotClient(botToken, httpClient);
+});
 
 builder.Services.AddHostedService<ConfigureWebhookService>();
 
