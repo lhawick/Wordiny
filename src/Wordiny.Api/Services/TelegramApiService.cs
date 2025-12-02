@@ -2,6 +2,7 @@
 using System.Security.Cryptography;
 using System.Text;
 using Telegram.Bot;
+using Telegram.Bot.Extensions;
 using Telegram.Bot.Types.Enums;
 using Wordiny.Api.Exceptions;
 
@@ -45,10 +46,7 @@ public class TelegramApiService : ITelegramApiService
 
         try
         {
-            // Экранируем определённые символы для MarkdownV2
-            var screeningMessage = GetScreeningMessage(message, useCache);
-
-            return await _botClient.SendMessage(userId, screeningMessage, ParseMode.MarkdownV2, cancellationToken: token);
+            return await _botClient.SendHtml(userId, message);
         }
         catch (Exception ex)
         {
@@ -64,51 +62,5 @@ public class TelegramApiService : ITelegramApiService
 
             throw new TelegramSendMessageException(userId, ex.Message);
         }
-    }
-
-    private static readonly string[] _screeningChars =
-    [
-        "\\", "_", "*", "[", "]", "(", ")", "~", "`",
-        ">", "#", "+", "-", "=", "|", "{", "}", ".", "!"
-    ];
-
-    private string GetScreeningMessage(string message, bool useCache)
-    {
-        var cacheKey = GetMd5Hash(message);
-        if (useCache && _memoryCache.TryGetValue<string>(cacheKey, out var screeningMessage) 
-            && screeningMessage is not null)
-        {
-            return screeningMessage;
-        }
-
-        var stringBuilder = new StringBuilder(message);
-
-        foreach (var screeningChar in _screeningChars)
-        {
-            stringBuilder.Replace(screeningChar, "\\" + screeningChar);
-        }
-
-        screeningMessage = stringBuilder.ToString();
-
-        if (useCache)
-        {
-            _memoryCache.Set(cacheKey, screeningMessage, TimeSpan.FromMinutes(30));
-        }
-
-        return screeningMessage;
-    }
-
-    private static string GetMd5Hash(string message)
-    {
-        var messageBytes = Encoding.UTF8.GetBytes(message);
-        var hashBytes = MD5.HashData(messageBytes);
-
-        var hashAsString = new StringBuilder();
-        foreach (var @byte in hashBytes)
-        {
-            hashAsString.Append(@byte.ToString("x2"));
-        }
-
-        return hashAsString.ToString();
     }
 }

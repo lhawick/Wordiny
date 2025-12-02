@@ -79,7 +79,8 @@ namespace Wordiny.Api.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Пожалуйста, укажите ваше смещение часового пояса числом (к примеру для москвы это 3)\nЭто необходимо для того, чтобы бот не писал вам ночью.
+        ///   Looks up a localized string similar to Пожалуйста, укажите ваше смещение часового пояса числом (к примеру для москвы это 3)
+        ///Это необходимо для того, чтобы бот не писал вам ночью.
         /// </summary>
         public static string SetupTimeZone {
             get {
