@@ -14,18 +14,15 @@ public class MessageHandler : IMessageHandler
 {
     private readonly ILogger<MessageHandler> _logger;
     private readonly IUserService _userService;
-    private readonly IUserSettingsService _userSettingsService;
     private readonly ITelegramApiService _telegramApiService;
 
     public MessageHandler(
         ILogger<MessageHandler> logger,
         IUserService userService,
-        IUserSettingsService userSettingsService,
         ITelegramApiService telegramApiService)
     {
         _logger = logger;
         _userService = userService;
-        _userSettingsService = userSettingsService;
         _telegramApiService = telegramApiService;
     }
 
@@ -36,14 +33,10 @@ public class MessageHandler : IMessageHandler
         if (BotCommands.IsBotComamand(message.Text))
         {
             await HandleBotCommandAsync(message, token);
-            return;
         }
-
-        var userSettingStep = await _userSettingsService.GetSettingStepAsync(message.UserId, token);
-        if (userSettingStep != SettingsStep.Setupped)
+        else
         {
-            await HandleUserSetting(message, token);
-            return;
+            await HandleUserInputAsync(message, token);
         }
     }
 
@@ -70,12 +63,12 @@ public class MessageHandler : IMessageHandler
                     var newUser = await _userService.AddUserAsync(userId, token);
                     if (newUser is null)
                     {
-                        _logger.LogWarning("User {userId} is already exist", message.UserId);
+                        _logger.LogWarning("User {userId} is already exist", userId);
                     }
 
                     await _telegramApiService.SendMessageAsync(userId, BotMessages.Welcome, token: token);
-                    await _userSettingsService.StartSettingAsync(userId, token);
-                    await _telegramApiService.SendMessageAsync(userId, BotMessages.SetupTimeZone, useCache: true, token);
+                    await _userService.SetInputStateAsync(userId, UserInputState.SetTimeZone, token);
+                    await _telegramApiService.SendMessageAsync(userId, BotMessages.SetupTimeZone, token);
 
                     break;
                 }
@@ -87,40 +80,38 @@ public class MessageHandler : IMessageHandler
         }
     }
 
-    private async Task HandleUserSetting(Message message, CancellationToken token = default)
+    private async Task HandleUserInputAsync(Message message, CancellationToken token = default)
     {
-        var userSettingStep = await _userSettingsService.GetSettingStepAsync(message.UserId, token);
-        if (userSettingStep == SettingsStep.Setupped)
-        {
-            return;
-        }
+        var userId = message.UserId;
+        var userInputState = await _userService.GetInputStateAsync(userId, token);
 
-        switch (userSettingStep)
+        switch (userInputState)
         {
-            case SettingsStep.SetTimeZone:
+            case UserInputState.SetTimeZone:
                 {
                     if (!short.TryParse(message.Text, out var timeZone))
                     {
                         await _telegramApiService.SendMessageAsync(
-                            message.UserId,
+                            userId,
                             "Часовой пояс указан неправильно. Пожалуйста, отправьте только число",
                             token: token);
 
                         break;
                     }
                     
-                    await _userSettingsService.SetupTimeZoneAsync(message.UserId, timeZone, token);
+                    await _userService.SetTimeZoneAsync(userId, timeZone, token);
+                    await _userService.SetInputStateAsync(userId, UserInputState.SetFrequence, token);
                     // TODO: отправляем клаву
 
                     break;
                 }
-            case SettingsStep.SetFrequence:
+            case UserInputState.SetFrequence:
                 {
                     if (!Enum.TryParse(typeof(RepeatFrequencyInDay), message.Text, true, out var frequencyObj)
                         || frequencyObj is not RepeatFrequencyInDay frequencyInDay)
                     {
                         await _telegramApiService.SendMessageAsync(
-                            message.UserId,
+                            userId,
                             "Частота отправки указана неверно. Пожалуйста, укажите значение с клавиатуры",
                             token: token);
 
@@ -129,16 +120,17 @@ public class MessageHandler : IMessageHandler
                         break;
                     }
 
-                    await _userSettingsService.SetupRepeatFrequencyInDayAsync(message.UserId, frequencyInDay, token);
+                    await _userService.SetRepeatFrequencyInDayAsync(userId, frequencyInDay, token);
+                    await _userService.SetInputStateAsync(userId, UserInputState.AwaitingWordAdding, token);
 
                     break;
                 }
-            case SettingsStep.NoSettings:
-                _logger.LogWarning("Try handle setup settings while user {userId} has not active setting process", message.UserId);
+            case UserInputState.None:
+                _logger.LogWarning("Try handle setup settings while user {userId} has not active setting process", userId);
                 return;
 
             default:
-                throw new InvalidOperationException($"No handlers for setting step {userSettingStep}");
+                throw new InvalidOperationException($"No handlers for user input state {userInputState}");
         }
     }
 }

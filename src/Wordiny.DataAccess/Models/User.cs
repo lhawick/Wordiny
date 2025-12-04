@@ -6,6 +6,19 @@ public class User
     public bool IsDisabled { get; protected set; } = false;
     public DateTimeOffset Created { get; protected set; }
     public DateTimeOffset Updated { get; protected set; }
+    public UserInputState InputState 
+    { 
+        get;  
+        set
+        {
+            if (!Enum.IsDefined(value))
+            {
+                throw new ArgumentException($"Unknow value of enum {nameof(UserInputState)}: {value}", nameof(InputState));
+            }
+
+            field = value;
+        }
+    }
 
     private readonly List<Phrase> _phrases = [];
     public IEnumerable<Phrase> Phrases => _phrases.AsEnumerable();
@@ -34,4 +47,15 @@ public class User
 
         return this;
     }
+}
+
+public enum UserInputState : byte
+{
+    None = 0,
+
+    SetTimeZone = 1,
+    SetFrequence = 2,
+
+    AwaitingWordAdding = 10,
+    AwaitingWordTranslation = 11,
 }

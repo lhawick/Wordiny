@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Wordiny.Api.Exceptions;
 using Wordiny.DataAccess;
 using Wordiny.DataAccess.Models;
 
@@ -12,25 +13,31 @@ public interface IUserService
     Task DeleteUserAsync(long userId, CancellationToken token = default);
     Task EnableUserAsync(long userId, CancellationToken token = default);
     Task DisabledUserAsync(long userId, CancellationToken token = default);
+    Task<UserInputState> GetInputStateAsync(long userId, CancellationToken token = default);
+    Task SetInputStateAsync(long userId, UserInputState state, CancellationToken token = default);
+    Task SetTimeZoneAsync(long userId, short timezone, CancellationToken token = default);
+    Task SetRepeatFrequencyInDayAsync(long userId, RepeatFrequencyInDay frequency, CancellationToken token = default);
 }
 
 public class UserService : IUserService
 {
     private readonly WordinyDbContext _db;
+    private readonly ILogger<UserService> _logger;
 
-    public UserService(WordinyDbContext db)
+    public UserService(WordinyDbContext db, ILogger<UserService> logger)
     {
         _db = db;
+        _logger = logger;
     }
 
-    public Task<User?> GetUserAsync(long userId, CancellationToken token = default)
+    public async Task<User?> GetUserAsync(long userId, CancellationToken token = default)
     {
-        throw new NotImplementedException();
+        return await _db.Users.FindAsync([userId], cancellationToken: token);
     }
 
-    public Task<bool> IsUserExistAsync(long userId, CancellationToken token = default)
+    public async Task<bool> IsUserExistAsync(long userId, CancellationToken token = default)
     {
-        throw new NotImplementedException();
+        return await _db.Users.AnyAsync(x => x.Id == userId, token);
     }
 
     public async Task<User?> AddUserAsync(long userId, CancellationToken token = default)
@@ -56,19 +63,71 @@ public class UserService : IUserService
 
     public async Task EnableUserAsync(long userId, CancellationToken token = default)
     {
-        await _db.Users
-            .Where(x => x.Id == userId)
-            .ExecuteUpdateAsync(
-                x => x.SetProperty(u => u.IsDisabled, false), 
-                token);
+        var user = await _db.Users.FindAsync([userId], cancellationToken: token);
+        if (user is null)
+        {
+            _logger.LogWarning("Cannot enable the user {userId}: user doesn't exist", userId);
+            return;
+        }
+
+        user.Enable();
+
+        await _db.SaveChangesAsync(token);
     }
 
     public async Task DisabledUserAsync(long userId, CancellationToken token = default)
     {
-        await _db.Users
-            .Where(x => x.Id == userId)
-            .ExecuteUpdateAsync(
-                x => x.SetProperty(u => u.IsDisabled, true),
-                token);
+        var user = await _db.Users.FindAsync([userId], cancellationToken: token);
+        if (user is null)
+        {
+            _logger.LogWarning("Cannot enable the user {userId}: user doesn't exist", userId);
+            return;
+        }
+
+        user.Disable();
+
+        await _db.SaveChangesAsync(token);
+    }
+
+    public async Task<UserInputState> GetInputStateAsync(long userId, CancellationToken token = default)
+    {
+        var user = await GetUserAsync(userId, token) ?? throw new UserNotFoundException(userId);
+
+        return user.InputState;
+    }
+
+    public async Task SetInputStateAsync(long userId, UserInputState state, CancellationToken token = default)
+    {
+        var user = await GetUserAsync(userId, token) ?? throw new UserNotFoundException(userId);
+
+        user.InputState = state;
+
+        await _db.SaveChangesAsync(token);
+    }
+
+    public async Task SetTimeZoneAsync(long userId, short timezone, CancellationToken token = default)
+    {
+        var userSettings = await _db.UserSettings.FirstOrDefaultAsync(x => x.UserId == userId, token);
+        if (userSettings is null)
+        {
+            throw new InvalidOperationException($"Settings of user {userId} not found");
+        }
+
+        userSettings.Timezone = timezone;
+
+        await _db.SaveChangesAsync(token);
+    }
+
+    public async Task SetRepeatFrequencyInDayAsync(long userId, RepeatFrequencyInDay frequency, CancellationToken token = default)
+    {
+        var userSettings = await _db.UserSettings.FirstOrDefaultAsync(x => x.UserId == userId, token);
+        if (userSettings is null)
+        {
+            throw new InvalidOperationException($"Settings of user {userId} not found");
+        }
+
+        userSettings.RepeatFrequencyInDay = frequency;
+
+        await _db.SaveChangesAsync(token);
     }
 }

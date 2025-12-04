@@ -16,6 +16,7 @@ internal class UserConfig : IEntityTypeConfiguration<User>
         builder.Property(x => x.IsDisabled).HasColumnName("is_disabled");
         builder.Property(x => x.Created).HasColumnName("created");
         builder.Property(x => x.Updated).HasColumnName("updated");
+        builder.Property(x => x.InputState).HasColumnName("input_state");
 
         builder.HasIndex(x => x.IsDisabled);
     }

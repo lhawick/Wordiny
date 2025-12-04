@@ -13,7 +13,6 @@ internal class UserSettingsConfig : IEntityTypeConfiguration<UserSettings>
         builder.HasKey(x => x.UserId);
 
         builder.Property(x => x.UserId).HasColumnName("user_id");
-        builder.Property(x => x.SettingsSetupStep).HasColumnName("setup_step");
         builder.Property(x => x.RepeatFrequencyInDay).HasColumnName("frequency_in_day");
 
         builder.HasIndex(x => x.RepeatFrequencyInDay);

@@ -5,12 +5,11 @@ namespace Wordiny.DataAccess.Models;
 public class UserSettings
 {
     public long UserId { get; protected set; }
-    public SettingsStep SettingsSetupStep { get; protected set; }
+    public DateTimeOffset Updated { get; protected set; }
 
-    private RepeatFrequencyInDay _repeatFrequencyInDay;
     public RepeatFrequencyInDay RepeatFrequencyInDay 
-    { 
-        get { return _repeatFrequencyInDay; }
+    {
+        get;
         set
         {
             if (!Enum.IsDefined(value))
@@ -18,14 +17,13 @@ public class UserSettings
                 throw new InvalidEnumArgumentException(nameof(RepeatFrequencyInDay), (int)value, typeof(RepeatFrequencyInDay));
             }
             
-            _repeatFrequencyInDay = value;
+            field = value;
         } 
     }
 
-    private short? _timezone;
     public short? Timezone 
-    { 
-        get { return _timezone; }
+    {
+        get;
         set
         {
             if (value is null || value < -12 || value > 14)
@@ -33,35 +31,17 @@ public class UserSettings
                 throw new ArgumentException($"Timezone doesn`t exist: {value}", nameof(Timezone));
             }
 
-            _timezone = value;
+            field = value;
         }
     }
 
     public UserSettings(
         long userId, 
-        SettingsStep settingsStep = SettingsStep.NoSettings, 
         RepeatFrequencyInDay frequencyInDay = RepeatFrequencyInDay.None)
     {
         UserId = userId;
-        SettingsSetupStep = settingsStep;
         RepeatFrequencyInDay = frequencyInDay;
     }
-
-    public void NextSettingsStep()
-    {
-        if (SettingsSetupStep < SettingsStep.Setupped)
-        {
-            SettingsSetupStep++;
-        }
-    }
-}
-
-public enum SettingsStep : byte
-{
-    NoSettings = 0,
-    SetTimeZone = 1,
-    SetFrequence = 2,
-    Setupped = 4
 }
 
 public enum RepeatFrequencyInDay : byte

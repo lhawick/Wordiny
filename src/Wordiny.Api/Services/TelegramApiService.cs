@@ -1,9 +1,5 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-using System.Security.Cryptography;
-using System.Text;
-using Telegram.Bot;
+﻿using Telegram.Bot;
 using Telegram.Bot.Extensions;
-using Telegram.Bot.Types.Enums;
 using Wordiny.Api.Exceptions;
 
 namespace Wordiny.Api.Services;
@@ -12,34 +8,22 @@ public interface ITelegramApiService
 {
     public Task<Telegram.Bot.Types.Message> SendMessageAsync(
         long userId, 
-        string message, 
-        bool useCache = true, 
+        string message,
         CancellationToken token = default);
 }
 
 public class TelegramApiService : ITelegramApiService
 {
     private readonly ITelegramBotClient _botClient;
-    private readonly IUserService _userService;
-    private readonly ILogger<TelegramApiService> _logger;
-    private readonly IMemoryCache _memoryCache;
 
-    public TelegramApiService(
-        ITelegramBotClient botClient,
-        IUserService userService,
-        ILogger<TelegramApiService> logger,
-        IMemoryCache memoryCache)
+    public TelegramApiService(ITelegramBotClient botClient)
     {
         _botClient = botClient;
-        _userService = userService;
-        _logger = logger;
-        _memoryCache = memoryCache;
     }
 
     public async Task<Telegram.Bot.Types.Message> SendMessageAsync(
         long userId, 
-        string message, 
-        bool useCache = true, 
+        string message,
         CancellationToken token = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(message, nameof(message));
