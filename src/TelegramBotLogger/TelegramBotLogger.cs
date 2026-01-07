@@ -13,6 +13,7 @@ public class TelegramBotLogger : ILogger, IDisposable
     private readonly ITelegramBotClient _telegramBotClient;
     private readonly ChatId[] _usersToSend;
     private readonly string _loggerName;
+    private static readonly TimeSpan _sendTimeout = TimeSpan.FromSeconds(1);
 
     private readonly CancellationTokenSource _cts = new();
     private static readonly SemaphoreSlim _semaphore = new(1, 1);
@@ -60,11 +61,11 @@ public class TelegramBotLogger : ILogger, IDisposable
 
             sb.AppendLine($"<b>{logLevel}</b> <code>{DateTimeOffset.Now}</code>");
 
-            sb.AppendLine($"<code>{_loggerName}</code>");
+            sb.AppendLine($"<code>{EscapeTelegramChars(_loggerName)}</code>");
 
             sb.AppendLine(string.Empty);
 
-            sb.AppendLine($"<b>Message:</b> {message}");
+            sb.AppendLine($"<b>Message:</b> {EscapeTelegramChars(message)}");
 
             sb.AppendLine(string.Empty);
 
@@ -74,10 +75,7 @@ public class TelegramBotLogger : ILogger, IDisposable
 
                 if (excpetion.StackTrace != null)
                 {
-                    var stackTrace = excpetion.StackTrace
-                        .Replace("&", "&amp;")
-                        .Replace("<", "&lt;")
-                        .Replace(">", "&gt;");
+                    var stackTrace = EscapeTelegramChars(excpetion.StackTrace);
 
                     sb.AppendLine($"<pre>{stackTrace}</pre>");
                 }
@@ -92,7 +90,7 @@ public class TelegramBotLogger : ILogger, IDisposable
             }
 
             // Чтобы не превысить ограничения телеги
-            await Task.Delay(TimeSpan.FromSeconds(1), token);
+            await Task.Delay(_sendTimeout, token);
         }
         catch (Exception ex)
         {
@@ -110,4 +108,7 @@ public class TelegramBotLogger : ILogger, IDisposable
         _cts?.Dispose();
         _semaphore?.Dispose();
     }
+
+    private static string EscapeTelegramChars(string text) 
+        => text.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;");
 }
