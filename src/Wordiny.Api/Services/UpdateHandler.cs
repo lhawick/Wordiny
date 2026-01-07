@@ -51,7 +51,7 @@ public class UpdateHandler : IUpdateHandler
                             msg.Type,
                             Telegram.Bot.Types.Enums.MessageType.Text);
 
-                        return;
+                        break;
                     }
 
                     var message = new Message(msg.From.Id, msg.Text);

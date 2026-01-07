@@ -7,14 +7,14 @@ namespace Wordiny.Api.Services;
 
 public class ConfigureWebhookService : IHostedService
 {
-    private readonly BotConfig _botConfig;
+    private readonly WordinyBotConfig _botConfig;
     private readonly ITelegramBotClient _telegramBotClient;
     private readonly IHostApplicationLifetime _hostApplicationLifetime;
     private readonly ILogger<ConfigureWebhookService> _logger;
 
     public ConfigureWebhookService(
-        IOptions<BotConfig> botConfig,
-        ITelegramBotClient telegramBotСlient,
+        IOptions<WordinyBotConfig> botConfig,
+        [FromKeyedServices("Wordiny")] ITelegramBotClient telegramBotСlient,
         IHostApplicationLifetime hostApplicationLifetime,
         ILogger<ConfigureWebhookService> logger)
     {
@@ -26,21 +26,24 @@ public class ConfigureWebhookService : IHostedService
 
     public async Task StartAsync(CancellationToken token = default)
     {
+#if !DEBUG
         _hostApplicationLifetime.ApplicationStarted.Register(async () =>
         {
             await _telegramBotClient.SetWebhook(
                 url: _botConfig.BotWebHookUrl,
                 allowedUpdates: [UpdateType.Message],
                 cancellationToken: token);
-
-            _logger.LogInformation($"Web hook setted");
         });
+#endif
+
+        _logger.LogInformation($"Web hook setted");
     }
 
     public async Task StopAsync(CancellationToken token = default)
     {
+#if !DEBUG
         await _telegramBotClient.DeleteWebhook(cancellationToken: token);
-
+#endif
         _logger.LogInformation($"Web hook deleted");
     }
 }

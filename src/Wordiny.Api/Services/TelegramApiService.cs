@@ -16,7 +16,7 @@ public class TelegramApiService : ITelegramApiService
 {
     private readonly ITelegramBotClient _botClient;
 
-    public TelegramApiService(ITelegramBotClient botClient)
+    public TelegramApiService([FromKeyedServices("Wordiny")]ITelegramBotClient botClient)
     {
         _botClient = botClient;
     }
@@ -30,7 +30,9 @@ public class TelegramApiService : ITelegramApiService
 
         try
         {
-            return await _botClient.SendHtml(userId, message);
+            var sentMessages = await _botClient.SendHtml(userId, message);
+
+            return sentMessages.First();
         }
         catch (Exception ex)
         {

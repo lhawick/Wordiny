@@ -1,8 +1,11 @@
+using Microsoft.EntityFrameworkCore;
 using System.Data.Common;
+using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using TelegramBotLogger;
 using Wordiny.Api.Config;
 using Wordiny.Api.Exceptions;
 using Wordiny.Api.Filters;
@@ -24,15 +27,56 @@ builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 builder.Logging.AddDebug();
 
+builder.Services.AddSingleton<ILoggerProvider, TelegramBotLoggerProvider>(x =>
+{
+    var telegramBotClient = x.GetRequiredKeyedService<ITelegramBotClient>("WordinyLogger");
+    var usersGettingLogs = builder.Configuration.GetSection("WordinyLoggerBotConfig:UsersGettingLogs").Get<long[]>();
+
+    if (usersGettingLogs is null)
+    {
+        throw new InvalidOperationException("No users to getting logs");
+    }
+
+    return new TelegramBotLoggerProvider(usersGettingLogs.Select(x => new ChatId(x)).ToArray(), telegramBotClient);
+});
+
 // Add services to the container.
 
-builder.Services.Configure<BotConfig>(builder.Configuration.GetSection(nameof(BotConfig)));
+builder.Services.Configure<WordinyBotConfig>(builder.Configuration.GetSection(nameof(WordinyBotConfig)));
 
-var botToken = builder.Configuration["BotConfig:BotToken"] ?? throw new InvalidOperationException("BotToken is not provided");
+builder.Services.AddHttpClient("Wordiny");
+builder.Services.AddHttpClient("WordinyLogger").RemoveAllLoggers();
 
-builder.Services.AddHttpClient<ITelegramBotClient, TelegramBotClient>(httpClient =>
+builder.Services.AddKeyedSingleton<ITelegramBotClient, TelegramBotClient>("Wordiny", (services, name) =>
 {
-    return new TelegramBotClient(botToken, httpClient);
+    var config = services.GetRequiredService<IConfiguration>();
+
+    var botToken = config["WordinyBotConfig:BotToken"]
+        ?? throw new InvalidOperationException("Wordiny BotToken is not provided");
+
+    var environment = services.GetRequiredService<IHostEnvironment>();
+
+    var httpClient = services.GetRequiredService<IHttpClientFactory>().CreateClient("Wordiny");
+
+    var botOptions = new TelegramBotClientOptions(botToken, useTestEnvironment: environment.IsDevelopment());
+
+    return new TelegramBotClient(botOptions, httpClient);
+});
+
+builder.Services.AddKeyedSingleton<ITelegramBotClient, TelegramBotClient>("WordinyLogger", (services, name) =>
+{
+    var config = services.GetRequiredService<IConfiguration>();
+
+    var botToken = config["WordinyLoggerBotConfig:BotToken"]
+        ?? throw new InvalidOperationException("WordinyLogger BotToken is not provided");
+
+    var environment = services.GetRequiredService<IHostEnvironment>();
+
+    var httpClient = services.GetRequiredService<IHttpClientFactory>().CreateClient("WordinyLogger");
+
+    var botOptions = new TelegramBotClientOptions(botToken);
+
+    return new TelegramBotClient(botOptions, httpClient);
 });
 
 builder.Services.AddHostedService<ConfigureWebhookService>();
@@ -46,8 +90,15 @@ builder.Services.AddScoped<IMessageHandler, MessageHandler>();
 
 // services
 builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IUserSettingsService, UserSettingsService>();
 builder.Services.AddScoped<ITelegramApiService, TelegramApiService>();
+
+// database
+builder.Services.AddDbContext<WordinyDbContext>(options =>
+{
+#if DEBUG
+    options.UseInMemoryDatabase("WordinyDb");
+#endif
+});
 
 var app = builder.Build();
 
@@ -114,6 +165,7 @@ async Task<IResult> OnUpdate(
     catch (Exception ex)
     {
         logger.LogError(ex, "Exception occured: {errorMessage}", ex.Message);
+        cacheService.Clear();
         await transaction.RollbackAsync(token);
 
         var exceptionType = ex.GetType();

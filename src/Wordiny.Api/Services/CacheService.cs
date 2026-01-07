@@ -9,6 +9,7 @@ public interface ICacheService
     T? Get<T>(object key);
     bool TryGetValue<T>(object key, out T? value);
     void Flush();
+    void Clear();
 }
 
 public class CacheService : ICacheService
@@ -68,5 +69,10 @@ public class CacheService : ICacheService
                 _memoryCache.Set(key, value);
             }
         }
+    }
+
+    public void Clear()
+    {
+        _buffer.Clear();
     }
 }
