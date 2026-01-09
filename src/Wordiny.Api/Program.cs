@@ -10,6 +10,7 @@ using Wordiny.Api.Config;
 using Wordiny.Api.Exceptions;
 using Wordiny.Api.Filters;
 using Wordiny.Api.Services;
+using Wordiny.Api.Services.Handlers;
 using Wordiny.DataAccess;
 
 var builder = WebApplication.CreateBuilder(args);

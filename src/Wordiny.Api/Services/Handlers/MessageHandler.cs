@@ -1,9 +1,10 @@
-﻿using Wordiny.Api.Helpers;
+﻿using GeoTimeZone;
+using Wordiny.Api.Helpers;
 using Wordiny.Api.Models;
 using Wordiny.Api.Resources;
 using Wordiny.DataAccess.Models;
 
-namespace Wordiny.Api.Services;
+namespace Wordiny.Api.Services.Handlers;
 
 public interface IMessageHandler
 {
@@ -89,11 +90,28 @@ public class MessageHandler : IMessageHandler
         {
             case UserInputState.SetTimeZone:
                 {
-                    if (!short.TryParse(message.Text, out var timeZone))
+                    short timeZone = 0;
+
+                    if (message.Location != null)
+                    {
+                        var tzOffset = GetTimeZoneOffsetByLocation(message.Location);
+                        if (tzOffset is null)
+                        {
+                            await _telegramApiService.SendMessageAsync(
+                                userId,
+                                BotMessages.SetupTimeZone_Failed,
+                                token);
+
+                            break;
+                        }
+
+                        timeZone = tzOffset.Value;
+                    }
+                    else if (!short.TryParse(message.Text, out timeZone))
                     {
                         await _telegramApiService.SendMessageAsync(
                             userId,
-                            "Часовой пояс указан неправильно. Пожалуйста, отправьте только число",
+                            BotMessages.SetupTimeZone_InvalidOffset,
                             token: token);
 
                         break;
@@ -101,6 +119,7 @@ public class MessageHandler : IMessageHandler
                     
                     await _userService.SetTimeZoneAsync(userId, timeZone, token);
                     await _userService.SetInputStateAsync(userId, UserInputState.SetFrequence, token);
+                    
                     // TODO: отправляем клаву
 
                     break;
@@ -132,5 +151,24 @@ public class MessageHandler : IMessageHandler
             default:
                 throw new InvalidOperationException($"No handlers for user input state {userInputState}");
         }
+    }
+
+    private static short? GetTimeZoneOffsetByLocation(Location location)
+    {
+        var tzResult = TimeZoneLookup.GetTimeZone(location.Latitude, location.Longitude);
+        if (tzResult is null)
+        {
+            return null;
+        }
+
+        var ianaTzId = tzResult.Result;
+        if (!TimeZoneInfo.TryFindSystemTimeZoneById(ianaTzId, out var tzInfo))
+        {
+            return null;
+        }
+
+        var tzOffset = (short)Math.Round(tzInfo.GetUtcOffset(DateTime.UtcNow).TotalHours);
+
+        return tzOffset;
     }
 }

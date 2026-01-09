@@ -79,12 +79,32 @@ namespace Wordiny.Api.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Пожалуйста, укажите ваше смещение часового пояса числом (к примеру для москвы это 3)
-        ///Это необходимо для того, чтобы бот не писал вам ночью.
+        ///   Looks up a localized string similar to Пожалуйста, отправьте нам вашу геолокацию чтобы определить ваш часовой пояс. Это необходимо для того, чтобы бот не отправлял вам сообщения ночью. Если вы не хотите предоставлять вашу геолокацию, можете отправить ваш часовой пояс числом (например, для Москвы это 3)
+        ///&lt;keyboard reply&gt;
+        ///&lt;button text=&apos;Отправить геолокацию&apos; request_location&gt;
+        ///&lt;/keyboard&gt;.
         /// </summary>
         public static string SetupTimeZone {
             get {
                 return ResourceManager.GetString("SetupTimeZone", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Не удалось определить часовой пояс по геолокации. Пожалуйста, отправьте смещение часового пояса числом или попробуйте ещё раз позже.
+        /// </summary>
+        public static string SetupTimeZone_Failed {
+            get {
+                return ResourceManager.GetString("SetupTimeZone_Failed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Часовой пояс указан неправильно. Пожалуйста, отправьте только число.
+        /// </summary>
+        public static string SetupTimeZone_InvalidOffset {
+            get {
+                return ResourceManager.GetString("SetupTimeZone_InvalidOffset", resourceCulture);
             }
         }
         

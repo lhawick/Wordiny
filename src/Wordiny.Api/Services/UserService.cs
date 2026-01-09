@@ -110,7 +110,7 @@ public class UserService : IUserService
         var userSettings = await _db.UserSettings.FirstOrDefaultAsync(x => x.UserId == userId, token);
         if (userSettings is null)
         {
-            throw new InvalidOperationException($"Settings of user {userId} not found");
+            userSettings = new(userId);
         }
 
         userSettings.Timezone = timezone;
@@ -123,7 +123,7 @@ public class UserService : IUserService
         var userSettings = await _db.UserSettings.FirstOrDefaultAsync(x => x.UserId == userId, token);
         if (userSettings is null)
         {
-            throw new InvalidOperationException($"Settings of user {userId} not found");
+            userSettings = new(userId);
         }
 
         userSettings.RepeatFrequencyInDay = frequency;

@@ -1,7 +1,7 @@
 ﻿using Wordiny.Api.Models;
 using Wordiny.DataAccess;
 
-namespace Wordiny.Api.Services;
+namespace Wordiny.Api.Services.Handlers;
 
 public interface IUpdateHandler
 {
@@ -30,7 +30,7 @@ public class UpdateHandler : IUpdateHandler
 
         switch (update)
         {
-            case { Message: { } msg }:
+            case  { Message: { } msg }:
                 {
                     if (msg.From is null)
                     {
@@ -55,6 +55,10 @@ public class UpdateHandler : IUpdateHandler
                     }
 
                     var message = new Message(msg.From.Id, msg.Text);
+                    if (msg.Location != null)
+                    {
+                        message.Location = new(msg.Location.Longitude, msg.Location.Latitude);
+                    }
 
                     await _messageHandler.HandleAsync(message, token);
 
