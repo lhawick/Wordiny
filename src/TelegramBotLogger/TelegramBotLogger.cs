@@ -86,11 +86,14 @@ public class TelegramBotLogger : ILogger, IDisposable
             if (logParameters != null)
             {
                 sb.AppendLine("Параметры:");
+                sb.AppendLine("<blockquote>");
 
                 foreach (var (key, value) in logParameters)
                 {
-                    sb.AppendLine($"{key}: {value}");
+                    sb.AppendLine($"{EscapeTelegramChars(key)}: {EscapeTelegramChars(value?.ToString())}");
                 }
+
+                sb.AppendLine("</blockquote>");
             }
 
             var logMessage = sb.ToString();
@@ -121,6 +124,6 @@ public class TelegramBotLogger : ILogger, IDisposable
         _semaphore?.Dispose();
     }
 
-    private static string EscapeTelegramChars(string text) 
-        => text.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;");
+    private static string EscapeTelegramChars(string? text) 
+        => text is null ? "null" : text.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;");
 }
