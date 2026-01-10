@@ -42,13 +42,16 @@ public class TelegramBotLogger : ILogger, IDisposable
         if (string.IsNullOrEmpty(message) && exception == null)
             return;
 
-        Task.Run(() => SendToTelegramBotAsync(message, logLevel, exception, _usersToSend, _cts.Token));
+        var logParameters = state as IReadOnlyList<KeyValuePair<string, object?>>;
+
+        Task.Run(() => SendToTelegramBotAsync(message, logLevel, exception, logParameters, _usersToSend, _cts.Token));
     }
 
     private async Task SendToTelegramBotAsync(
         string message, 
         LogLevel logLevel, 
         Exception? excpetion,
+        IReadOnlyList<KeyValuePair<string, object?>>? logParameters,
         ChatId[] usersToSend,
         CancellationToken token = default)
     {
@@ -77,6 +80,16 @@ public class TelegramBotLogger : ILogger, IDisposable
                     var stackTrace = EscapeTelegramChars(excpetion.StackTrace);
 
                     sb.AppendLine($"<pre>{stackTrace}</pre>");
+                }
+            }
+
+            if (logParameters != null)
+            {
+                sb.AppendLine("Параметры:");
+
+                foreach (var (key, value) in logParameters)
+                {
+                    sb.AppendLine($"{key}: {value}");
                 }
             }
 
