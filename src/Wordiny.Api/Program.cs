@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Data.Common;
 using System.Text.Json;
@@ -89,6 +90,7 @@ builder.Services.AddScoped<ICacheService, CacheService>();
 // handlers
 builder.Services.AddScoped<IUpdateHandler, UpdateHandler>();
 builder.Services.AddScoped<IMessageHandler, MessageHandler>();
+builder.Services.AddScoped<ICallbackQueryHandler, CallbackQueryHandler>();
 
 // services
 builder.Services.AddScoped<IUserService, UserService>();
@@ -119,6 +121,8 @@ async Task<IResult> OnUpdate(
     WordinyDbContext db,
     IUserService userService,
     ICacheService cacheService,
+    WordinyBotConfig botConfig,
+    [FromHeader(Name = "X-Telegram-Bot-Api-Secret-Token")] string? secretToken,
     CancellationToken token = default)
 {
 
@@ -126,6 +130,12 @@ async Task<IResult> OnUpdate(
     var updateAsJson = JsonSerializer.Serialize(update, jsonSerializerOptions);
     logger.LogDebug("Received an update event with type {updateType}\n{json}", update.Type, updateAsJson);
 #endif
+
+    if (string.IsNullOrWhiteSpace(secretToken) || secretToken != botConfig.SecretToken)
+    {
+        logger.LogError("Invalid secret token: {secretToken}", secretToken);
+        return Results.Unauthorized();
+    }
 
     if (update is null)
     {

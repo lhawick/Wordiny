@@ -26,12 +26,12 @@ public class ConfigureWebhookService : IHostedService
 
     public async Task StartAsync(CancellationToken token = default)
     {
-#if !DEBUG
+#if DEBUG
         _hostApplicationLifetime.ApplicationStarted.Register(async () =>
         {
             await _telegramBotClient.SetWebhook(
-                url: _botConfig.BotWebHookUrl,
-                allowedUpdates: [UpdateType.Message],
+                url: _botConfig.BotWebHookUrl + $"?secret_token={_botConfig.SecretToken}",
+                allowedUpdates: [UpdateType.Message, UpdateType.CallbackQuery],
                 cancellationToken: token);
         });
 #endif
