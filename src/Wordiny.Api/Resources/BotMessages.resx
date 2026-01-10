@@ -171,9 +171,6 @@
     <value>Ввод отменён</value>
   </data>
   <data name="AwaitingWordTranslation_Complete" xml:space="preserve">
-    <value>Перевод для {nativeText} добавлен -- {translation}
-&lt;keyboard&gt;
-&lt;button text='Удалить'&gt;
-&lt;/keyboard&gt;</value>
+    <value>Перевод для {nativeText} добавлен -- {translation}</value>
   </data>
 </root>

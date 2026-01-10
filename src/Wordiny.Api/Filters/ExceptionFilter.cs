@@ -17,7 +17,7 @@ public class ExceptionFilter : IEndpointFilter
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Exception occured in filter: {errorMessage}", ex.Message);
+            _logger.LogError(ex, "Exception occured in the exception filter: {errorMessage}", ex.Message);
 
             return Results.InternalServerError();
         }

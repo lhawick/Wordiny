@@ -122,6 +122,7 @@ async Task<IResult> OnUpdate(
     IUserService userService,
     ICacheService cacheService,
     WordinyBotConfig botConfig,
+    ITelegramApiService telegramApiService,
     [FromHeader(Name = "X-Telegram-Bot-Api-Secret-Token")] string? secretToken,
     CancellationToken token = default)
 {
@@ -130,7 +131,7 @@ async Task<IResult> OnUpdate(
     var updateAsJson = JsonSerializer.Serialize(update, jsonSerializerOptions);
     logger.LogDebug("Received an update event with type {updateType}\n{json}", update.Type, updateAsJson);
 #endif
-
+    
     if (string.IsNullOrWhiteSpace(secretToken) || secretToken != botConfig.SecretToken)
     {
         logger.LogError("Invalid secret token: {secretToken}", secretToken);
@@ -176,6 +177,14 @@ async Task<IResult> OnUpdate(
     catch (Exception ex)
     {
         logger.LogError(ex, "Exception occured: {errorMessage}", ex.Message);
+        if (update?.Message?.From != null)
+        {
+            await telegramApiService.SendMessageAsync(
+                update.Message.From.Id, 
+                "Простите, что-то пошло не так, попробуйте позже",
+                token: token);
+        } 
+
         cacheService.Clear();
         await transaction.RollbackAsync(token);
 

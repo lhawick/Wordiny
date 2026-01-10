@@ -12,16 +12,16 @@ public class UpdateHandler : IUpdateHandler
 {
     private readonly ILogger<UpdateHandler> _logger;
     private readonly IMessageHandler _messageHandler;
-    private readonly WordinyDbContext _db;
+    private readonly ICallbackQueryHandler _callbackQueryHandler;
 
     public UpdateHandler(
         ILogger<UpdateHandler> logger,
         IMessageHandler messageHandler,
-        WordinyDbContext db)
+        ICallbackQueryHandler callbackQueryHandler)
     {
         _logger = logger;
         _messageHandler = messageHandler;
-        _db = db;
+        _callbackQueryHandler = callbackQueryHandler;
     }
 
     public async Task HandleAsync(Telegram.Bot.Types.Update update, CancellationToken token = default)
@@ -44,12 +44,13 @@ public class UpdateHandler : IUpdateHandler
                         break;
                     }
 
-                    if (msg.Type != Telegram.Bot.Types.Enums.MessageType.Text)
+                    if (msg.Type is not Telegram.Bot.Types.Enums.MessageType.Text or Telegram.Bot.Types.Enums.MessageType.Location)
                     {
                         _logger.LogWarning(
-                            "Message type is {messageType} instead of {expectedType}",
+                            "Message type is {messageType} instead of {textType} or {locationType}",
                             msg.Type,
-                            Telegram.Bot.Types.Enums.MessageType.Text);
+                            Telegram.Bot.Types.Enums.MessageType.Text,
+                            Telegram.Bot.Types.Enums.MessageType.Location);
 
                         break;
                     }
@@ -61,6 +62,26 @@ public class UpdateHandler : IUpdateHandler
                     }
 
                     await _messageHandler.HandleAsync(message, token);
+
+                    break;
+                }
+            case { CallbackQuery: { } callbackQuery }:
+                {
+                    if (callbackQuery.From is null)
+                    {
+                        _logger.LogError("Callback query user is null");
+                        break;
+                    }
+
+                    if (string.IsNullOrWhiteSpace(callbackQuery.Data))
+                    {
+                        _logger.LogError("Callback query data is empty");
+                        break;
+                    }
+
+                    var callback = new CallbackQuery(callbackQuery.From.Id, callbackQuery.Data);
+
+                    await _callbackQueryHandler.HandleAsync(callback, token);
 
                     break;
                 }

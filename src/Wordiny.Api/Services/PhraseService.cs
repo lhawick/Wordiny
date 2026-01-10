@@ -6,8 +6,8 @@ namespace Wordiny.Api.Services;
 
 public interface IPhraseService
 {
-    Task AddNewPhraseAsync(long userId, string phrase, CancellationToken token = default);
-    Task AddPhraseTranslationAsync(long userId, string translation, CancellationToken token = default);
+    Task<Phrase> AddNewPhraseAsync(long userId, string phrase, CancellationToken token = default);
+    Task<Phrase> AddPhraseTranslationAsync(long userId, string translation, CancellationToken token = default);
     Task RemovePhraseAsync(long phraseId, CancellationToken token = default);
 }
 
@@ -20,15 +20,19 @@ public class PhraseService : IPhraseService
         _db = db;
     }
 
-    public async Task AddNewPhraseAsync(long userId, string phrase, CancellationToken token = default)
+    public async Task<Phrase> AddNewPhraseAsync(long userId, string phrase, CancellationToken token = default)
     {
         var newPhrase = new Phrase(userId, phrase);
         _db.Add(newPhrase);
 
         await _db.SaveChangesAsync(token);
+
+        _db.Entry(newPhrase).State = EntityState.Detached;
+
+        return newPhrase;
     }
 
-    public async Task AddPhraseTranslationAsync(long userId, string translation, CancellationToken token = default)
+    public async Task<Phrase> AddPhraseTranslationAsync(long userId, string translation, CancellationToken token = default)
     {
         var lastPhrase = await _db.Phrases
             .OrderBy(x => x.Added)
@@ -42,6 +46,10 @@ public class PhraseService : IPhraseService
         lastPhrase.AddTranslation(translation);
 
         await _db.SaveChangesAsync(token);
+
+        _db.Entry(lastPhrase).State = EntityState.Detached;
+
+        return lastPhrase;
     }
 
     public async Task RemovePhraseAsync(long phraseId, CancellationToken token = default)

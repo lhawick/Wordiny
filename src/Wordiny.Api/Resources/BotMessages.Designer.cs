@@ -79,10 +79,7 @@ namespace Wordiny.Api.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Перевод для {nativeText} добавлен -- {translation}
-        ///&lt;keyboard&gt;
-        ///&lt;button text=&apos;Удалить&apos;&gt;
-        ///&lt;/keyboard&gt;.
+        ///   Looks up a localized string similar to Перевод для {nativeText} добавлен -- {translation}.
         /// </summary>
         public static string AwaitingWordTranslation_Complete {
             get {

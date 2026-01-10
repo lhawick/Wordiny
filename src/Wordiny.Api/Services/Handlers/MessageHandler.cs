@@ -72,7 +72,7 @@ public class MessageHandler : IMessageHandler
 
                     await _telegramApiService.SendMessageAsync(userId, BotMessages.Welcome, token: token);
                     await _userService.SetInputStateAsync(userId, UserInputState.SetTimeZone, token);
-                    await _telegramApiService.SendMessageAsync(userId, BotMessages.SetupTimeZone, token);
+                    await _telegramApiService.SendMessageAsync(userId, BotMessages.SetupTimeZone, token: token);
 
                     break;
                 }
@@ -98,7 +98,7 @@ public class MessageHandler : IMessageHandler
                         await _telegramApiService.SendMessageAsync(
                             userId,
                             BotMessages.SetupTimeZone_InvalidLocation,
-                            token);
+                            token: token);
 
                         break;
                     }
@@ -109,7 +109,7 @@ public class MessageHandler : IMessageHandler
                         await _telegramApiService.SendMessageAsync(
                             userId,
                             BotMessages.SetupTimeZone_Failed,
-                            token);
+                            token: token);
 
                         break;
                     }
@@ -119,7 +119,7 @@ public class MessageHandler : IMessageHandler
                     await _userService.SetTimeZoneAsync(userId, ianaTzId, token);
                     await _userService.SetInputStateAsync(userId, UserInputState.ConfirmTimeZone, token);
 
-                    await _telegramApiService.SendMessageAsync(userId, string.Format(BotMessages.ConfirmTimeZone, ianaTzId), token);
+                    await _telegramApiService.SendMessageAsync(userId, string.Format(BotMessages.ConfirmTimeZone, ianaTzId), token: token);
 
                     break;
                 }
@@ -129,17 +129,17 @@ public class MessageHandler : IMessageHandler
                     {
                         case "да":
                             await _userService.SetInputStateAsync(userId, UserInputState.SetFrequence, token);
-                            await _telegramApiService.SendMessageAsync(userId, BotMessages.SetupFrequency, token);
+                            await _telegramApiService.SendMessageAsync(userId, BotMessages.SetupFrequency, token: token);
 
                             break;
                         case "нет":
                             await _userService.SetInputStateAsync(userId, UserInputState.SetTimeZone, token);
-                            await _telegramApiService.SendMessageAsync(userId, BotMessages.SetupTimeZone, token);
+                            await _telegramApiService.SendMessageAsync(userId, BotMessages.SetupTimeZone, token: token);
 
                             break;
                         default:
                             {
-                                await _telegramApiService.SendMessageAsync(userId, BotMessages.ConfirmTimeZone_InvalidInput, token);
+                                await _telegramApiService.SendMessageAsync(userId, BotMessages.ConfirmTimeZone_InvalidInput, token: token);
                                 break;
                             }
                     }
@@ -160,12 +160,12 @@ public class MessageHandler : IMessageHandler
                     }
 
                     await _userService.SetRepeatFrequencyInDayAsync(userId, frequencyInDay, token);
-                    await _telegramApiService.SendMessageAsync(userId, BotMessages.SetupFinished, token);
-                    await _userService.SetInputStateAsync(userId, UserInputState.AwaitingWordAdding, token);
+                    await _telegramApiService.SendMessageAsync(userId, BotMessages.SetupFinished, token: token);
+                    await _userService.SetInputStateAsync(userId, UserInputState.AwaitingPhraseAdding, token);
 
                     break;
                 }
-            case UserInputState.AwaitingWordAdding:
+            case UserInputState.AwaitingPhraseAdding:
                 {
                     if (string.IsNullOrWhiteSpace(message.Text))
                     {
@@ -173,13 +173,17 @@ public class MessageHandler : IMessageHandler
                         break;
                     }
 
-                    await _phraseService.AddNewPhraseAsync(userId, message.Text, token);
-                    await _userService.SetInputStateAsync(userId, UserInputState.AwaitingWordTranslation, token);
-                    await _telegramApiService.SendMessageAsync(userId, string.Format(BotMessages.AwaitingWordTranslation, message.Text), token);
+                    var addedPhrase = await _phraseService.AddNewPhraseAsync(userId, message.Text, token);
+                    await _userService.SetInputStateAsync(userId, UserInputState.AwaitingPhraseTranslation, token);
+                    await _telegramApiService.SendMessageAsync(
+                        userId, 
+                        string.Format(BotMessages.AwaitingWordTranslation, message.Text),
+                        [new("Отменить ❌", CallbackCommands.CancelPhraseInput(addedPhrase.Id))],
+                        token: token);
 
                     break;
                 }
-            case UserInputState.AwaitingWordTranslation:
+            case UserInputState.AwaitingPhraseTranslation:
                 {
                     if (string.IsNullOrWhiteSpace(message.Text))
                     {
@@ -187,9 +191,16 @@ public class MessageHandler : IMessageHandler
                         break;
                     }
 
-                    await _phraseService.AddPhraseTranslationAsync(userId, message.Text, token);
-                    await _userService.SetInputStateAsync(userId, UserInputState.AwaitingWordTranslation, token);
-                    await _telegramApiService.SendMessageAsync(userId, BotMessages.AwaitingWordTranslation_Complete, token);
+                    var phrase = await _phraseService.AddPhraseTranslationAsync(userId, message.Text, token);
+                    await _userService.SetInputStateAsync(userId, UserInputState.AwaitingPhraseTranslation, token);
+
+                    var responseMessage = string.Format(BotMessages.AwaitingWordTranslation_Complete, phrase.NativeText, phrase.TranslationText);
+
+                    await _telegramApiService.SendMessageAsync(
+                        userId, 
+                        responseMessage,
+                        [new("Удалить 🗑️", CallbackCommands.DeletePhrase(phrase.Id))],
+                        token: token);
 
                     break;
                 }
