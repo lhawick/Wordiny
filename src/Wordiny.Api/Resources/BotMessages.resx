@@ -117,11 +117,33 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Settuped" xml:space="preserve">
-    <value>Настройка завершена! Теперь можно полноценно пользоваться ботом</value>
+  <data name="ConfirmTimeZone" xml:space="preserve">
+    <value>Часовой пояс {0} обнаружен правильно?
+&lt;keyboard reply&gt;
+&lt;button text="Да"&gt;
+&lt;button text="Нет"&gt;
+&lt;/keybord&gt;</value>
+  </data>
+  <data name="ConfirmTimeZone_InvalidInput" xml:space="preserve">
+    <value>Пожалуйста, укажите через клавиатуру, ваш часовой пояс обнаружен правильно?</value>
+  </data>
+  <data name="SetupFinished" xml:space="preserve">
+    <value>Настройка завершена!</value>
   </data>
   <data name="SetupFrequency" xml:space="preserve">
-    <value>Пожалуйста, выберете сколько раз в день бот сможет вам писать</value>
+    <value>Пожалуйста, выберете сколько слов в день бот будет вам присылать
+&lt;keyboard reply&gt;
+&lt;button text="2"&gt;
+&lt;button text="3"&gt;
+&lt;row&gt;
+&lt;button text = "4"&gt;
+&lt;button text="5"&gt;
+&lt;/keyboard&gt;</value>
+  </data>
+  <data name="SetupFrequency_InvalidInput" xml:space="preserve">
+    <value>Частота отправки указана неверно. Пожалуйста, укажите значение с клавиатуры
+
+Пожалуйста, выберете сколько слов в день бот будет вам присылать</value>
   </data>
   <data name="SetupTimeZone" xml:space="preserve">
     <value>Пожалуйста, отправьте нам вашу геолокацию чтобы определить ваш часовой пояс. Это необходимо для того, чтобы бот не отправлял вам сообщения ночью.

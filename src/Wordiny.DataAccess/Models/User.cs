@@ -54,7 +54,8 @@ public enum UserInputState : byte
     None = 0,
 
     SetTimeZone = 1,
-    SetFrequence = 2,
+    ConfirmTimeZone = 2,
+    SetFrequence = 3,
 
     AwaitingWordAdding = 10,
     AwaitingWordTranslation = 11,

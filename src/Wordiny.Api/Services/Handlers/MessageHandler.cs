@@ -114,9 +114,32 @@ public class MessageHandler : IMessageHandler
                     var ianaTzId = tzResult.Result;
                     
                     await _userService.SetTimeZoneAsync(userId, ianaTzId, token);
-                    await _userService.SetInputStateAsync(userId, UserInputState.SetFrequence, token);
-                    
-                    // TODO: отправляем клаву
+                    await _userService.SetInputStateAsync(userId, UserInputState.ConfirmTimeZone, token);
+
+                    await _telegramApiService.SendMessageAsync(userId, string.Format(BotMessages.ConfirmTimeZone, ianaTzId), token);
+
+                    break;
+                }
+            case UserInputState.ConfirmTimeZone:
+                {
+                    switch (message.Text.ToLower())
+                    {
+                        case "да":
+                            await _userService.SetInputStateAsync(userId, UserInputState.SetFrequence, token);
+                            await _telegramApiService.SendMessageAsync(userId, BotMessages.SetupFrequency, token);
+
+                            break;
+                        case "нет":
+                            await _userService.SetInputStateAsync(userId, UserInputState.SetTimeZone, token);
+                            await _telegramApiService.SendMessageAsync(userId, BotMessages.SetupTimeZone, token);
+
+                            break;
+                        default:
+                            {
+                                await _telegramApiService.SendMessageAsync(userId, BotMessages.ConfirmTimeZone_InvalidInput, token);
+                                break;
+                            }
+                    }
 
                     break;
                 }
@@ -127,17 +150,24 @@ public class MessageHandler : IMessageHandler
                     {
                         await _telegramApiService.SendMessageAsync(
                             userId,
-                            "Частота отправки указана неверно. Пожалуйста, укажите значение с клавиатуры",
+                            BotMessages.SetupFrequency_InvalidInput,
                             token: token);
-
-                        // TODO: тут скорее всего тоже клаву надо
 
                         break;
                     }
 
                     await _userService.SetRepeatFrequencyInDayAsync(userId, frequencyInDay, token);
+                    await _telegramApiService.SendMessageAsync(userId, BotMessages.SetupFinished, token);
                     await _userService.SetInputStateAsync(userId, UserInputState.AwaitingWordAdding, token);
 
+                    break;
+                }
+            case UserInputState.AwaitingWordAdding:
+                {
+                    break;
+                }
+            case UserInputState.AwaitingWordTranslation:
+                {
                     break;
                 }
             case UserInputState.None:

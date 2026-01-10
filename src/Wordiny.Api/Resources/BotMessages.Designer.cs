@@ -61,20 +61,60 @@ namespace Wordiny.Api.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Настройка завершена! Теперь можно полноценно пользоваться ботом.
+        ///   Looks up a localized string similar to Часовой пояс {0} обнаружен правильно?
+        ///&lt;keyboard reply&gt;
+        ///&lt;button text=&quot;Да&quot;&gt;
+        ///&lt;button text=&quot;Нет&quot;&gt;
+        ///&lt;/keybord&gt;.
         /// </summary>
-        public static string Settuped {
+        public static string ConfirmTimeZone {
             get {
-                return ResourceManager.GetString("Settuped", resourceCulture);
+                return ResourceManager.GetString("ConfirmTimeZone", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Пожалуйста, выберете сколько раз в день бот сможет вам писать.
+        ///   Looks up a localized string similar to Пожалуйста, укажите через клавиатуру, ваш часовой пояс обнаружен правильно?.
+        /// </summary>
+        public static string ConfirmTimeZone_InvalidInput {
+            get {
+                return ResourceManager.GetString("ConfirmTimeZone_InvalidInput", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Настройка завершена!.
+        /// </summary>
+        public static string SetupFinished {
+            get {
+                return ResourceManager.GetString("SetupFinished", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Пожалуйста, выберете сколько слов в день бот будет вам присылать
+        ///&lt;keyboard reply&gt;
+        ///&lt;button text=&quot;2&quot;&gt;
+        ///&lt;button text=&quot;3&quot;&gt;
+        ///&lt;row&gt;
+        ///&lt;button text = &quot;4&quot;&gt;
+        ///&lt;button text=&quot;5&quot;&gt;
+        ///&lt;/keyboard&gt;.
         /// </summary>
         public static string SetupFrequency {
             get {
                 return ResourceManager.GetString("SetupFrequency", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Частота отправки указана неверно. Пожалуйста, укажите значение с клавиатуры
+        ///
+        ///Пожалуйста, выберете сколько слов в день бот будет вам присылать.
+        /// </summary>
+        public static string SetupFrequency_InvalidInput {
+            get {
+                return ResourceManager.GetString("SetupFrequency_InvalidInput", resourceCulture);
             }
         }
         

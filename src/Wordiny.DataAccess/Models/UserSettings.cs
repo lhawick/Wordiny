@@ -35,8 +35,8 @@ public class UserSettings
 public enum RepeatFrequencyInDay : byte
 {
     None = 0,
+    Two = 2,
     Three = 3,
     Four = 4,
-    Six = 6,
-    Tvelwe = 12,
+    Five = 5
 }
