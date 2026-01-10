@@ -18,10 +18,12 @@ public interface ITelegramApiService
 public class TelegramApiService : ITelegramApiService
 {
     private readonly ITelegramBotClient _botClient;
+    private readonly IUserService _userService;
 
-    public TelegramApiService([FromKeyedServices("Wordiny")]ITelegramBotClient botClient)
+    public TelegramApiService([FromKeyedServices("Wordiny")] ITelegramBotClient botClient, IUserService userService)
     {
         _botClient = botClient;
+        _userService = userService;
     }
 
     public async Task<Telegram.Bot.Types.Message> SendMessageAsync(

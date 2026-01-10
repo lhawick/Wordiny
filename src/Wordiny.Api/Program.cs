@@ -118,15 +118,10 @@ async Task<IResult> OnUpdate(
     Update update,
     ILogger<Program> logger,
     IUpdateHandler updateHandler,
-    WordinyDbContext db,
-    IUserService userService,
-    ICacheService cacheService,
     WordinyBotConfig botConfig,
-    ITelegramApiService telegramApiService,
     [FromHeader(Name = "X-Telegram-Bot-Api-Secret-Token")] string? secretToken,
     CancellationToken token = default)
 {
-
 #if DEBUG
     var updateAsJson = JsonSerializer.Serialize(update, jsonSerializerOptions);
     logger.LogDebug("Received an update event with type {updateType}\n{json}", update.Type, updateAsJson);
@@ -145,57 +140,13 @@ async Task<IResult> OnUpdate(
         return Results.Ok();
     }
 
-    using var transaction = await db.Database.BeginTransactionAsync(token);
+    var handleResult = await updateHandler.HandleAsync(update, token);
 
-    try
+    return handleResult switch
     {
-        await updateHandler.HandleAsync(update, token);
-        await transaction.CommitAsync(token);
-
-        cacheService.Flush();
-    }
-    catch (UserUndeliverableException ex)
-    {
-        logger.LogError(ex, "User {userId} undeliverable: {errorMessage}", ex.UserId, ex.Message);
-
-        await transaction.RollbackAsync(token);
-        db.ChangeTracker.Clear();
-
-        if (ex.IsDeleted)
-        {
-            await userService.DeleteUserAsync(ex.UserId, CancellationToken.None);
-        }
-        else
-        {
-            await userService.DisabledUserAsync(ex.UserId, CancellationToken.None);
-        }
-
-        await db.SaveChangesAsync(CancellationToken.None);
-
-        return Results.Ok();
-    }
-    catch (Exception ex)
-    {
-        logger.LogError(ex, "Exception occured: {errorMessage}", ex.Message);
-        if (update?.Message?.From != null)
-        {
-            await telegramApiService.SendMessageAsync(
-                update.Message.From.Id, 
-                "Простите, что-то пошло не так, попробуйте позже",
-                token: token);
-        } 
-
-        cacheService.Clear();
-        await transaction.RollbackAsync(token);
-
-        var exceptionType = ex.GetType();
-        if (exceptionsTypesToRetryUpdate.Contains(exceptionType))
-        {
-            return Results.InternalServerError();
-        }
-
-        return Results.Ok();
-    }
-
-    return Results.Ok();
+        UpdateHandleResult.Succes => Results.Ok(),
+        UpdateHandleResult.RetryNeeded => Results.InternalServerError(),
+        UpdateHandleResult.Error => Results.Ok(),
+        _ => Results.Ok(),
+    };
 }

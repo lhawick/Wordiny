@@ -1,11 +1,20 @@
-﻿using Wordiny.Api.Models;
+﻿using System.Data.Common;
+using Wordiny.Api.Exceptions;
+using Wordiny.Api.Models;
 using Wordiny.DataAccess;
 
 namespace Wordiny.Api.Services.Handlers;
 
+public enum UpdateHandleResult
+{
+    Succes = 1,
+    RetryNeeded = 2,
+    Error = 3,
+}
+
 public interface IUpdateHandler
 {
-    Task HandleAsync(Telegram.Bot.Types.Update update, CancellationToken token = default);
+    Task<UpdateHandleResult> HandleAsync(Telegram.Bot.Types.Update update, CancellationToken token = default);
 }
 
 public class UpdateHandler : IUpdateHandler
@@ -13,18 +22,89 @@ public class UpdateHandler : IUpdateHandler
     private readonly ILogger<UpdateHandler> _logger;
     private readonly IMessageHandler _messageHandler;
     private readonly ICallbackQueryHandler _callbackQueryHandler;
+    private readonly WordinyDbContext _dbContext;
+    private readonly IUserService _userService;
+    private readonly ITelegramApiService _telegramApiService;
 
     public UpdateHandler(
         ILogger<UpdateHandler> logger,
         IMessageHandler messageHandler,
-        ICallbackQueryHandler callbackQueryHandler)
+        ICallbackQueryHandler callbackQueryHandler,
+        WordinyDbContext dbContext,
+        IUserService userService,
+        ITelegramApiService telegramApiService)
     {
         _logger = logger;
         _messageHandler = messageHandler;
         _callbackQueryHandler = callbackQueryHandler;
+        _dbContext = dbContext;
+        _userService = userService;
+        _telegramApiService = telegramApiService;
     }
 
-    public async Task HandleAsync(Telegram.Bot.Types.Update update, CancellationToken token = default)
+    public async Task<UpdateHandleResult> HandleAsync(Telegram.Bot.Types.Update update, CancellationToken token = default)
+    {
+        using var dbTransaction = await _dbContext.Database.BeginTransactionAsync(token);
+
+        try
+        {
+            await HandleInnerAsync(update, token);
+            await dbTransaction.CommitAsync(token);
+
+            return UpdateHandleResult.Succes;
+        }
+        catch (UserUndeliverableException ex)
+        {
+            _logger.LogError(ex, "User {userId} undeliverable: {errorMessage}", ex.UserId, ex.Message);
+
+            await dbTransaction.RollbackAsync(token);
+            _dbContext.ChangeTracker.Clear();
+
+            if (ex.IsDeleted)
+            {
+                await _userService.DeleteUserAsync(ex.UserId, CancellationToken.None);
+            }
+            else
+            {
+                await _userService.DisabledUserAsync(ex.UserId, CancellationToken.None);
+            }
+
+            await _dbContext.SaveChangesAsync(CancellationToken.None);
+
+            return UpdateHandleResult.Succes;
+        }
+        catch (TelegramSendMessageException ex)
+        {
+            _logger.LogError("Failed to send message to user {userId}: {errorMessage}", ex.UserId, ex.Message);
+
+            await dbTransaction.RollbackAsync(token);
+
+            return UpdateHandleResult.RetryNeeded;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Exception occured: {errorMessage}", ex.Message);
+
+            if (update?.Message?.From != null)
+            {
+                await _telegramApiService.SendMessageAsync(
+                    update.Message.From.Id,
+                    "Простите, что-то пошло не так, попробуйте позже",
+                    token: token);
+            }
+
+            await dbTransaction.RollbackAsync(token);
+
+            if (ex is DbException)
+            {
+                return UpdateHandleResult.RetryNeeded;
+            }
+
+            return UpdateHandleResult.Error;
+        }
+    }
+
+    private async Task HandleInnerAsync(Telegram.Bot.Types.Update update, CancellationToken token = default)
     {
         ArgumentNullException.ThrowIfNull(update, nameof(update));
 
