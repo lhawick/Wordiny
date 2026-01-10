@@ -15,7 +15,7 @@ public interface IUserService
     Task DisabledUserAsync(long userId, CancellationToken token = default);
     Task<UserInputState> GetInputStateAsync(long userId, CancellationToken token = default);
     Task SetInputStateAsync(long userId, UserInputState state, CancellationToken token = default);
-    Task SetTimeZoneAsync(long userId, short timezone, CancellationToken token = default);
+    Task SetTimeZoneAsync(long userId, string timeZone, CancellationToken token = default);
     Task SetRepeatFrequencyInDayAsync(long userId, RepeatFrequencyInDay frequency, CancellationToken token = default);
 }
 
@@ -105,7 +105,7 @@ public class UserService : IUserService
         await _db.SaveChangesAsync(token);
     }
 
-    public async Task SetTimeZoneAsync(long userId, short timezone, CancellationToken token = default)
+    public async Task SetTimeZoneAsync(long userId, string timeZone, CancellationToken token = default)
     {
         var userSettings = await _db.UserSettings.FirstOrDefaultAsync(x => x.UserId == userId, token);
         if (userSettings is null)
@@ -113,7 +113,7 @@ public class UserService : IUserService
             userSettings = new(userId);
         }
 
-        userSettings.Timezone = timezone;
+        userSettings.TimeZone = timeZone;
 
         await _db.SaveChangesAsync(token);
     }

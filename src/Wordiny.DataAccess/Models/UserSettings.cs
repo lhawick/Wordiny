@@ -21,19 +21,7 @@ public class UserSettings
         } 
     }
 
-    public short? Timezone 
-    {
-        get;
-        set
-        {
-            if (value is null || value < -12 || value > 14)
-            {
-                throw new ArgumentException($"Timezone doesn`t exist: {value}", nameof(Timezone));
-            }
-
-            field = value;
-        }
-    }
+    public string? TimeZone { get; set; }
 
     public UserSettings(
         long userId, 

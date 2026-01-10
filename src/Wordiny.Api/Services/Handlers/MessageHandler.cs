@@ -90,34 +90,30 @@ public class MessageHandler : IMessageHandler
         {
             case UserInputState.SetTimeZone:
                 {
-                    short timeZone = 0;
-
-                    if (message.Location != null)
-                    {
-                        var tzOffset = GetTimeZoneOffsetByLocation(message.Location);
-                        if (tzOffset is null)
-                        {
-                            await _telegramApiService.SendMessageAsync(
-                                userId,
-                                BotMessages.SetupTimeZone_Failed,
-                                token);
-
-                            break;
-                        }
-
-                        timeZone = tzOffset.Value;
-                    }
-                    else if (!short.TryParse(message.Text, out timeZone))
+                    if (message.Location is null)
                     {
                         await _telegramApiService.SendMessageAsync(
                             userId,
-                            BotMessages.SetupTimeZone_InvalidOffset,
-                            token: token);
+                            BotMessages.SetupTimeZone_InvalidLocation,
+                            token);
 
                         break;
                     }
+
+                    var tzResult = TimeZoneLookup.GetTimeZone(message.Location.Latitude, message.Location.Longitude);
+                    if (tzResult is null || tzResult.Result is null)
+                    {
+                        await _telegramApiService.SendMessageAsync(
+                            userId,
+                            BotMessages.SetupTimeZone_Failed,
+                            token);
+
+                        break;
+                    }
+
+                    var ianaTzId = tzResult.Result;
                     
-                    await _userService.SetTimeZoneAsync(userId, timeZone, token);
+                    await _userService.SetTimeZoneAsync(userId, ianaTzId, token);
                     await _userService.SetInputStateAsync(userId, UserInputState.SetFrequence, token);
                     
                     // TODO: отправляем клаву
@@ -151,24 +147,5 @@ public class MessageHandler : IMessageHandler
             default:
                 throw new InvalidOperationException($"No handlers for user input state {userInputState}");
         }
-    }
-
-    private static short? GetTimeZoneOffsetByLocation(Location location)
-    {
-        var tzResult = TimeZoneLookup.GetTimeZone(location.Latitude, location.Longitude);
-        if (tzResult is null)
-        {
-            return null;
-        }
-
-        var ianaTzId = tzResult.Result;
-        if (!TimeZoneInfo.TryFindSystemTimeZoneById(ianaTzId, out var tzInfo))
-        {
-            return null;
-        }
-
-        var tzOffset = (short)Math.Round(tzInfo.GetUtcOffset(DateTime.UtcNow).TotalHours);
-
-        return tzOffset;
     }
 }

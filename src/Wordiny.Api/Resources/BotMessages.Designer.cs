@@ -79,7 +79,7 @@ namespace Wordiny.Api.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Пожалуйста, отправьте нам вашу геолокацию чтобы определить ваш часовой пояс. Это необходимо для того, чтобы бот не отправлял вам сообщения ночью. Если вы не хотите предоставлять вашу геолокацию, можете отправить ваш часовой пояс числом (например, для Москвы это 3)
+        ///   Looks up a localized string similar to Пожалуйста, отправьте нам вашу геолокацию чтобы определить ваш часовой пояс. Это необходимо для того, чтобы бот не отправлял вам сообщения ночью.
         ///&lt;keyboard reply&gt;
         ///&lt;button text=&apos;Отправить геолокацию&apos; request_location&gt;
         ///&lt;/keyboard&gt;.
@@ -91,7 +91,7 @@ namespace Wordiny.Api.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Не удалось определить часовой пояс по геолокации. Пожалуйста, отправьте смещение часового пояса числом или попробуйте ещё раз позже.
+        ///   Looks up a localized string similar to Не удалось определить часовой пояс по геолокации. Пожалуйста, попробуйте ещё раз позже.
         /// </summary>
         public static string SetupTimeZone_Failed {
             get {
@@ -100,11 +100,11 @@ namespace Wordiny.Api.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Часовой пояс указан неправильно. Пожалуйста, отправьте только число.
+        ///   Looks up a localized string similar to Пожалуйста, отправьте вашу геолокацию через кнопку ниже.
         /// </summary>
-        public static string SetupTimeZone_InvalidOffset {
+        public static string SetupTimeZone_InvalidLocation {
             get {
-                return ResourceManager.GetString("SetupTimeZone_InvalidOffset", resourceCulture);
+                return ResourceManager.GetString("SetupTimeZone_InvalidLocation", resourceCulture);
             }
         }
         
