@@ -20,8 +20,7 @@ public class User
         }
     }
 
-    private readonly List<Phrase> _phrases = [];
-    public IEnumerable<Phrase> Phrases => _phrases.AsEnumerable();
+    public List<Phrase> Phrases { get; protected set; } = new();
 
     public UserSettings? Settings { get; protected set; }
 

@@ -61,7 +61,37 @@ namespace Wordiny.Api.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Часовой пояс {0} обнаружен правильно?
+        ///   Looks up a localized string similar to Введите перевод для {nativeText}.
+        /// </summary>
+        public static string AwaitingWordTranslation {
+            get {
+                return ResourceManager.GetString("AwaitingWordTranslation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ввод отменён.
+        /// </summary>
+        public static string AwaitingWordTranslation_Cancel {
+            get {
+                return ResourceManager.GetString("AwaitingWordTranslation_Cancel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Перевод для {nativeText} добавлен -- {translation}
+        ///&lt;keyboard&gt;
+        ///&lt;button text=&apos;Удалить&apos;&gt;
+        ///&lt;/keyboard&gt;.
+        /// </summary>
+        public static string AwaitingWordTranslation_Complete {
+            get {
+                return ResourceManager.GetString("AwaitingWordTranslation_Complete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Часовой пояс {timeZone} обнаружен правильно?
         ///&lt;keyboard reply&gt;
         ///&lt;button text=&quot;Да&quot;&gt;
         ///&lt;button text=&quot;Нет&quot;&gt;
@@ -74,7 +104,7 @@ namespace Wordiny.Api.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Пожалуйста, укажите через клавиатуру, ваш часовой пояс обнаружен правильно?.
+        ///   Looks up a localized string similar to Ваш часовой пояс обнаружен правильно?.
         /// </summary>
         public static string ConfirmTimeZone_InvalidInput {
             get {
@@ -83,7 +113,8 @@ namespace Wordiny.Api.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Настройка завершена!.
+        ///   Looks up a localized string similar to Настройка завершена!
+        ///&lt;keybord reply_remove&gt;&lt;/keyboard&gt;.
         /// </summary>
         public static string SetupFinished {
             get {
@@ -108,9 +139,7 @@ namespace Wordiny.Api.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Частота отправки указана неверно. Пожалуйста, укажите значение с клавиатуры
-        ///
-        ///Пожалуйста, выберете сколько слов в день бот будет вам присылать.
+        ///   Looks up a localized string similar to Частота отправки указана неверно. Пожалуйста, укажите значение с клавиатуры.
         /// </summary>
         public static string SetupFrequency_InvalidInput {
             get {

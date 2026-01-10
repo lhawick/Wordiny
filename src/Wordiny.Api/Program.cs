@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using System.Data.Common;
-using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Telegram.Bot;
@@ -19,6 +18,8 @@ var jsonSerializerOptions = new JsonSerializerOptions
 {
     WriteIndented = true
 };
+
+jsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 
 var exceptionsTypesToRetryUpdate = new Type[] { typeof(DbException), typeof(TelegramSendMessageException) };
 
@@ -92,6 +93,7 @@ builder.Services.AddScoped<IMessageHandler, MessageHandler>();
 // services
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ITelegramApiService, TelegramApiService>();
+builder.Services.AddScoped<IPhraseService, PhraseService>();
 
 // database
 builder.Services.AddDbContext<WordinyDbContext>(options =>
@@ -121,8 +123,6 @@ async Task<IResult> OnUpdate(
 {
 
 #if DEBUG
-    jsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-
     var updateAsJson = JsonSerializer.Serialize(update, jsonSerializerOptions);
     logger.LogDebug("Received an update event with type {updateType}\n{json}", update.Type, updateAsJson);
 #endif
@@ -134,7 +134,7 @@ async Task<IResult> OnUpdate(
         return Results.Ok();
     }
 
-    var transaction = await db.Database.BeginTransactionAsync(token);
+    using var transaction = await db.Database.BeginTransactionAsync(token);
 
     try
     {

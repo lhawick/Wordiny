@@ -16,15 +16,18 @@ public class MessageHandler : IMessageHandler
     private readonly ILogger<MessageHandler> _logger;
     private readonly IUserService _userService;
     private readonly ITelegramApiService _telegramApiService;
+    private readonly IPhraseService _phraseService;
 
     public MessageHandler(
         ILogger<MessageHandler> logger,
         IUserService userService,
-        ITelegramApiService telegramApiService)
+        ITelegramApiService telegramApiService,
+        IPhraseService phraseService)
     {
         _logger = logger;
         _userService = userService;
         _telegramApiService = telegramApiService;
+        _phraseService = phraseService;
     }
 
     public async Task HandleAsync(Message message, CancellationToken token = default)
@@ -164,10 +167,30 @@ public class MessageHandler : IMessageHandler
                 }
             case UserInputState.AwaitingWordAdding:
                 {
+                    if (string.IsNullOrWhiteSpace(message.Text))
+                    {
+                        _logger.LogError("User {userId} send a empty phrase", userId);
+                        break;
+                    }
+
+                    await _phraseService.AddNewPhraseAsync(userId, message.Text, token);
+                    await _userService.SetInputStateAsync(userId, UserInputState.AwaitingWordTranslation, token);
+                    await _telegramApiService.SendMessageAsync(userId, string.Format(BotMessages.AwaitingWordTranslation, message.Text), token);
+
                     break;
                 }
             case UserInputState.AwaitingWordTranslation:
                 {
+                    if (string.IsNullOrWhiteSpace(message.Text))
+                    {
+                        _logger.LogError("User {userId} send a empty translation", userId);
+                        break;
+                    }
+
+                    await _phraseService.AddPhraseTranslationAsync(userId, message.Text, token);
+                    await _userService.SetInputStateAsync(userId, UserInputState.AwaitingWordTranslation, token);
+                    await _telegramApiService.SendMessageAsync(userId, BotMessages.AwaitingWordTranslation_Complete, token);
+
                     break;
                 }
             case UserInputState.None:
