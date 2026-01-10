@@ -1,7 +1,8 @@
-﻿using Telegram.Bot;
+﻿using System.Text;
+using Telegram.Bot;
 using Telegram.Bot.Extensions;
-using Telegram.Bot.Types.ReplyMarkups;
 using Wordiny.Api.Exceptions;
+using Wordiny.Api.Models;
 
 namespace Wordiny.Api.Services;
 
@@ -10,6 +11,7 @@ public interface ITelegramApiService
     public Task<Telegram.Bot.Types.Message> SendMessageAsync(
         long userId, 
         string message,
+        IEnumerable<InlineButton>? inlineButtons = null,
         CancellationToken token = default);
 }
 
@@ -25,9 +27,15 @@ public class TelegramApiService : ITelegramApiService
     public async Task<Telegram.Bot.Types.Message> SendMessageAsync(
         long userId, 
         string message,
+        IEnumerable<InlineButton>? inlineButtons = null,
         CancellationToken token = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(message, nameof(message));
+
+        if (inlineButtons != null)
+        {
+            message = AddInlineButtonToMessage(message, inlineButtons);            
+        }
 
         try
         {
@@ -49,5 +57,22 @@ public class TelegramApiService : ITelegramApiService
 
             throw new TelegramSendMessageException(userId, ex.Message);
         }
+    }
+
+    private static string AddInlineButtonToMessage(string message, IEnumerable<InlineButton> inlineButtons)
+    {
+        ArgumentNullException.ThrowIfNull(inlineButtons, nameof(inlineButtons));
+
+        var sb = new StringBuilder(message);
+        sb.AppendLine("<keyboard>");
+
+        foreach (var inlineButton in inlineButtons)
+        {
+            sb.AppendLine($"<button text={inlineButton.Text} callback={inlineButton.Data}>");
+        }
+
+        sb.AppendLine("</keyboard>");
+
+        return sb.ToString();
     }
 }
