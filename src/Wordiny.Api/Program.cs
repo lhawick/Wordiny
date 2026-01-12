@@ -100,9 +100,9 @@ builder.Services.AddScoped<IPhraseService, PhraseService>();
 // database
 builder.Services.AddDbContext<WordinyDbContext>(options =>
 {
-#if DEBUG
+//#if DEBUG
     options.UseInMemoryDatabase("WordinyDb");
-#endif
+//#endif
 });
 
 var app = builder.Build();
