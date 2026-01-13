@@ -118,15 +118,9 @@ public class UpdateHandler : IUpdateHandler
                         break;
                     }
 
-                    if (string.IsNullOrWhiteSpace(msg.Text))
+                    if (msg.Type is not Telegram.Bot.Types.Enums.MessageType.Text and not Telegram.Bot.Types.Enums.MessageType.Location)
                     {
-                        _logger.LogError("Update message text is null or empty");
-                        break;
-                    }
-
-                    if (msg.Type is not Telegram.Bot.Types.Enums.MessageType.Text or Telegram.Bot.Types.Enums.MessageType.Location)
-                    {
-                        _logger.LogWarning(
+                        _logger.LogError(
                             "Message type is {messageType} instead of {textType} or {locationType}",
                             msg.Type,
                             Telegram.Bot.Types.Enums.MessageType.Text,
@@ -135,7 +129,7 @@ public class UpdateHandler : IUpdateHandler
                         break;
                     }
 
-                    var message = new Message(msg.From.Id, msg.Text);
+                    var message = new Message(msg.From.Id, msg.Text ?? string.Empty);
                     if (msg.Location != null)
                     {
                         message.Location = new(msg.Location.Longitude, msg.Location.Latitude);
