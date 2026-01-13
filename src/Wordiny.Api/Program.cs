@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using System.Data.Common;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -61,7 +63,7 @@ builder.Services.AddKeyedSingleton<ITelegramBotClient, TelegramBotClient>("Wordi
 
     var httpClient = services.GetRequiredService<IHttpClientFactory>().CreateClient("Wordiny");
 
-    var botOptions = new TelegramBotClientOptions(botToken, useTestEnvironment: environment.IsDevelopment());
+    var botOptions = new TelegramBotClientOptions(botToken);
 
     return new TelegramBotClient(botOptions, httpClient);
 });
@@ -98,10 +100,13 @@ builder.Services.AddScoped<ITelegramApiService, TelegramApiService>();
 builder.Services.AddScoped<IPhraseService, PhraseService>();
 
 // database
+using var connection = new SqliteConnection("DataSource=:memory:");
+connection.Open();
+
 builder.Services.AddDbContext<WordinyDbContext>(options =>
 {
 //#if DEBUG
-    options.UseInMemoryDatabase("WordinyDb");
+    options.UseSqlite(connection);
 //#endif
 });
 
@@ -118,7 +123,7 @@ async Task<IResult> OnUpdate(
     Update update,
     ILogger<Program> logger,
     IUpdateHandler updateHandler,
-    WordinyBotConfig botConfig,
+    IOptions<WordinyBotConfig> botConfig,
     [FromHeader(Name = "X-Telegram-Bot-Api-Secret-Token")] string? secretToken,
     CancellationToken token = default)
 {
@@ -127,7 +132,7 @@ async Task<IResult> OnUpdate(
     logger.LogDebug("Received an update event with type {updateType}\n{json}", update.Type, updateAsJson);
 #endif
     
-    if (string.IsNullOrWhiteSpace(secretToken) || secretToken != botConfig.SecretToken)
+    if (string.IsNullOrWhiteSpace(secretToken) || secretToken != botConfig.Value.SecretToken)
     {
         logger.LogError("Invalid secret token: {secretToken}", secretToken);
         return Results.Unauthorized();
