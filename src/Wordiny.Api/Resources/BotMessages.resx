@@ -118,11 +118,11 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ConfirmTimeZone" xml:space="preserve">
-    <value>Часовой пояс {timeZone} обнаружен правильно?
+    <value>Часовой пояс {0} обнаружен правильно?
 &lt;keyboard reply&gt;
 &lt;button text="Да"&gt;
 &lt;button text="Нет"&gt;
-&lt;/keybord&gt;</value>
+&lt;/keyboard&gt;</value>
   </data>
   <data name="ConfirmTimeZone_InvalidInput" xml:space="preserve">
     <value>Ваш часовой пояс обнаружен правильно?</value>
@@ -133,7 +133,7 @@
 &lt;button text="2"&gt;
 &lt;button text="3"&gt;
 &lt;row&gt;
-&lt;button text = "4"&gt;
+&lt;button text="4"&gt;
 &lt;button text="5"&gt;
 &lt;/keyboard&gt;</value>
   </data>
@@ -143,7 +143,7 @@
   <data name="SetupTimeZone" xml:space="preserve">
     <value>Пожалуйста, отправьте нам вашу геолокацию чтобы определить ваш часовой пояс. Это необходимо для того, чтобы бот не отправлял вам сообщения ночью.
 &lt;keyboard reply&gt;
-&lt;button text='Отправить геолокацию' request_location&gt;
+&lt;button text="Отправить геолокацию 📍" request_location&gt;
 &lt;/keyboard&gt;</value>
   </data>
   <data name="SetupTimeZone_Failed" xml:space="preserve">
@@ -162,15 +162,15 @@
   </data>
   <data name="SetupFinished" xml:space="preserve">
     <value>Настройка завершена!
-&lt;keybord reply_remove&gt;&lt;/keyboard&gt;</value>
+&lt;keyboard reply_remove&gt;&lt;/keyboard&gt;</value>
   </data>
   <data name="AwaitingWordTranslation" xml:space="preserve">
-    <value>Введите перевод для {nativeText}</value>
+    <value>Введите перевод для {0}</value>
   </data>
   <data name="AwaitingWordTranslation_Cancel" xml:space="preserve">
     <value>Ввод отменён</value>
   </data>
   <data name="AwaitingWordTranslation_Complete" xml:space="preserve">
-    <value>Перевод для {nativeText} добавлен -- {translation}</value>
+    <value>Перевод для {0} добавлен -- {1}</value>
   </data>
 </root>
