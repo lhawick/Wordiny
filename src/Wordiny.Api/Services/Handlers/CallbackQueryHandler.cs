@@ -13,15 +13,18 @@ public class CallbackQueryHandler : ICallbackQueryHandler
     private readonly ILogger<CallbackQueryHandler> _logger;
     private readonly IPhraseService _phraseService;
     private readonly ITelegramApiService _telegramApiService;
+    private readonly IUserService _userService;
 
     public CallbackQueryHandler(
         ILogger<CallbackQueryHandler> logger,
         IPhraseService phraseService,
-        ITelegramApiService telegramApiService)
+        ITelegramApiService telegramApiService,
+        IUserService userService)
     {
         _logger = logger;
         _phraseService = phraseService;
         _telegramApiService = telegramApiService;
+        _userService = userService;
     }
 
     public async Task HandleAsync(CallbackQuery callback, CancellationToken token = default)
@@ -67,6 +70,7 @@ public class CallbackQueryHandler : ICallbackQueryHandler
                         throw new InvalidOperationException("Failed to parse phraseId from callback data");
                     }
 
+                    await _userService.SetInputStateAsync(userId, DataAccess.Models.UserInputState.AwaitingPhraseAdding, token);
                     await _phraseService.RemovePhraseAsync(phraseId, token);
                     await _telegramApiService.SendMessageAsync(userId, "Ввод отменён", token: token);
 
