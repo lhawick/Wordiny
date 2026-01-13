@@ -31,6 +31,8 @@ public class User
         Updated = DateTimeOffset.UtcNow;
     }
 
+    protected User() { }
+
     public User Disable()
     {
         IsDisabled = true;

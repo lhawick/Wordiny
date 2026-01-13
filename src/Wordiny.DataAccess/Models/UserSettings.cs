@@ -30,6 +30,8 @@ public class UserSettings
         UserId = userId;
         RepeatFrequencyInDay = frequencyInDay;
     }
+
+    protected UserSettings() { }
 }
 
 public enum RepeatFrequencyInDay : byte

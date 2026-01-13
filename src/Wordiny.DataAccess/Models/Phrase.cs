@@ -22,6 +22,8 @@ public class Phrase
         Added = DateTimeOffset.UtcNow;
     }
 
+    protected Phrase() { }
+
     public void AddTranslation(string translation)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(translation, nameof(translation));
