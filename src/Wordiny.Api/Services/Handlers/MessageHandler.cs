@@ -149,7 +149,8 @@ public class MessageHandler : IMessageHandler
             case UserInputState.SetFrequence:
                 {
                     if (!Enum.TryParse(typeof(RepeatFrequencyInDay), message.Text, true, out var frequencyObj)
-                        || frequencyObj is not RepeatFrequencyInDay frequencyInDay)
+                        || frequencyObj is not RepeatFrequencyInDay frequencyInDay
+                        || !Enum.IsDefined(frequencyInDay))
                     {
                         await _telegramApiService.SendMessageAsync(
                             userId,
