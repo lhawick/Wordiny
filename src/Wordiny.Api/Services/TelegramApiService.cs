@@ -18,12 +18,10 @@ public interface ITelegramApiService
 public class TelegramApiService : ITelegramApiService
 {
     private readonly ITelegramBotClient _botClient;
-    private readonly IUserService _userService;
 
-    public TelegramApiService([FromKeyedServices("Wordiny")] ITelegramBotClient botClient, IUserService userService)
+    public TelegramApiService([FromKeyedServices("Wordiny")] ITelegramBotClient botClient)
     {
         _botClient = botClient;
-        _userService = userService;
     }
 
     public async Task<Telegram.Bot.Types.Message> SendMessageAsync(
@@ -70,7 +68,7 @@ public class TelegramApiService : ITelegramApiService
 
         foreach (var inlineButton in inlineButtons)
         {
-            sb.AppendLine($"<button text={inlineButton.Text} callback={inlineButton.Data}>");
+            sb.AppendLine($"<button text=\"{inlineButton.Text}\" callback=\"{inlineButton.Data}\">");
         }
 
         sb.AppendLine("</keyboard>");
