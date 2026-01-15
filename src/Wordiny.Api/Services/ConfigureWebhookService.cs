@@ -26,7 +26,6 @@ public class ConfigureWebhookService : IHostedService
 
     public async Task StartAsync(CancellationToken token = default)
     {
-#if !DEBUG
         _hostApplicationLifetime.ApplicationStarted.Register(async () =>
         {
             await _telegramBotClient.SetWebhook(
@@ -35,16 +34,13 @@ public class ConfigureWebhookService : IHostedService
                 secretToken: _botConfig.SecretToken,
                 cancellationToken: token);
         });
-#endif
 
         _logger.LogInformation($"Web hook setted");
     }
 
     public async Task StopAsync(CancellationToken token = default)
     {
-#if !DEBUG
         await _telegramBotClient.DeleteWebhook(cancellationToken: token);
-#endif
         _logger.LogInformation($"Web hook deleted");
     }
 }

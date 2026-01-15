@@ -105,9 +105,7 @@ connection.Open();
 
 builder.Services.AddDbContext<WordinyDbContext>(options =>
 {
-//#if DEBUG
     options.UseSqlite(connection);
-//#endif
 });
 
 var app = builder.Build();
@@ -129,7 +127,7 @@ async Task<IResult> OnUpdate(
 {
 #if DEBUG
     var updateAsJson = JsonSerializer.Serialize(update, jsonSerializerOptions);
-    logger.LogDebug("Received an update event with type {updateType}\n{json}", update.Type, updateAsJson);
+    logger.LogInformation("Received an update event with type {updateType}\n{json}", update.Type, updateAsJson);
 #endif
     
     if (string.IsNullOrWhiteSpace(secretToken) || secretToken != botConfig.Value.SecretToken)
