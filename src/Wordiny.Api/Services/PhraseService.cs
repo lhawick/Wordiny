@@ -9,6 +9,7 @@ public interface IPhraseService
     Task<Phrase> AddNewPhraseAsync(long userId, string phrase, CancellationToken token = default);
     Task<Phrase> AddPhraseTranslationAsync(long userId, string translation, CancellationToken token = default);
     Task RemovePhraseAsync(long phraseId, CancellationToken token = default);
+    Task RemoveLastPhraseAsync(long userId, CancellationToken token = default);
 }
 
 public class PhraseService : IPhraseService
@@ -55,5 +56,10 @@ public class PhraseService : IPhraseService
     public async Task RemovePhraseAsync(long phraseId, CancellationToken token = default)
     {
         await _db.Phrases.Where(x => x.Id == phraseId).ExecuteDeleteAsync(token);
+    }
+
+    public async Task RemoveLastPhraseAsync(long userId, CancellationToken token = default)
+    {
+        await _db.Phrases.Where(x => x.UserId == userId).OrderByDescending(x => x.Added).Take(1).ExecuteDeleteAsync(token);
     }
 }

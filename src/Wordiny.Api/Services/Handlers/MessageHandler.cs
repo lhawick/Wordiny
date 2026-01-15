@@ -179,7 +179,6 @@ public class MessageHandler : IMessageHandler
                     await _telegramApiService.SendMessageAsync(
                         userId, 
                         string.Format(BotMessages.AwaitingWordTranslation, message.Text),
-                        [new("Отменить ❌", CallbackCommands.CancelPhraseInput(addedPhrase.Id))],
                         token: token);
 
                     break;
@@ -189,6 +188,15 @@ public class MessageHandler : IMessageHandler
                     if (string.IsNullOrWhiteSpace(message.Text))
                     {
                         _logger.LogError("User {userId} send a empty translation", userId);
+                        break;
+                    }
+
+                    if (message.Text == ReplyActions.CANCEL_INPUT)
+                    {
+                        await _userService.SetInputStateAsync(userId, UserInputState.AwaitingPhraseAdding, token);
+                        await _phraseService.RemoveLastPhraseAsync(userId, token);
+                        await _telegramApiService.SendMessageAsync(userId, "Ввод отменён", token: token);
+
                         break;
                     }
 

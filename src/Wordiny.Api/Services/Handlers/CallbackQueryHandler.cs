@@ -63,17 +63,9 @@ public class CallbackQueryHandler : ICallbackQueryHandler
 
                     break;
                 }
-            case CallbackCommands.CANCEL_PHRASE_INPUT:
+            default:
                 {
-                    if (!long.TryParse(callbackData[1], out var phraseId))
-                    {
-                        throw new InvalidOperationException("Failed to parse phraseId from callback data");
-                    }
-
-                    await _userService.SetInputStateAsync(userId, DataAccess.Models.UserInputState.AwaitingPhraseAdding, token);
-                    await _phraseService.RemovePhraseAsync(phraseId, token);
-                    await _telegramApiService.SendMessageAsync(userId, "Ввод отменён", token: token);
-
+                    _logger.LogError("Unknow callback command: {callbackCommand}", callbackData[0]);
                     break;
                 }
         }
