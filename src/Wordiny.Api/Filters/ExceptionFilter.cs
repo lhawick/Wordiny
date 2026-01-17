@@ -1,4 +1,6 @@
-﻿namespace Wordiny.Api.Filters;
+﻿using Wordiny.Api.Extensions;
+
+namespace Wordiny.Api.Filters;
 
 public class ExceptionFilter : IEndpointFilter
 {
@@ -17,7 +19,7 @@ public class ExceptionFilter : IEndpointFilter
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Exception occured in the exception filter: {errorMessage}", ex.Message);
+            _logger.LogError(ex, "Exception occured in the exception filter: {errorMessage}", ex.GetFullExceptionMessage());
 
             return Results.InternalServerError();
         }

@@ -1,5 +1,6 @@
 ﻿using System.Data.Common;
 using Wordiny.Api.Exceptions;
+using Wordiny.Api.Extensions;
 using Wordiny.Api.Models;
 using Wordiny.DataAccess;
 
@@ -55,7 +56,7 @@ public class UpdateHandler : IUpdateHandler
         }
         catch (UserUndeliverableException ex)
         {
-            _logger.LogError(ex, "User {userId} undeliverable: {errorMessage}", ex.UserId, ex.Message);
+            _logger.LogError(ex, "User {userId} undeliverable: {errorMessage}", ex.UserId, ex.GetFullExceptionMessage());
 
             await dbTransaction.RollbackAsync(token);
             _dbContext.ChangeTracker.Clear();
@@ -75,7 +76,7 @@ public class UpdateHandler : IUpdateHandler
         }
         catch (TelegramSendMessageException ex)
         {
-            _logger.LogError("Failed to send message to user {userId}: {errorMessage}", ex.UserId, ex.Message);
+            _logger.LogError("Failed to send message to user {userId}: {errorMessage}", ex.UserId, ex.GetFullExceptionMessage());
 
             await dbTransaction.RollbackAsync(token);
 
@@ -83,7 +84,7 @@ public class UpdateHandler : IUpdateHandler
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Exception occured: {errorMessage}", ex.Message);
+            _logger.LogError(ex, "Exception occured: {errorMessage}", ex.GetFullExceptionMessage());
 
             if (update?.Message?.From != null)
             {

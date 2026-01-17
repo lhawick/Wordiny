@@ -2,6 +2,7 @@
 using Telegram.Bot;
 using Telegram.Bot.Extensions;
 using Wordiny.Api.Exceptions;
+using Wordiny.Api.Extensions;
 using Wordiny.Api.Models;
 
 namespace Wordiny.Api.Services;
@@ -60,7 +61,7 @@ public class TelegramApiService : ITelegramApiService
                 throw new UserUndeliverableException(userId, isDeleted: true, ex.Message);
             }
 
-            throw new TelegramSendMessageException(userId, ex.Message);
+            throw new TelegramSendMessageException(userId, ex.GetFullExceptionMessage());
         }
     }
 
