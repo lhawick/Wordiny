@@ -23,7 +23,7 @@ internal class PhraseConfig : IEntityTypeConfiguration<Phrase>
         builder.HasIndex(x => x.MemoryState, "phrases__memory_state__ix");
 
         builder
-            .HasOne<User>()
+            .HasOne(x => x.User)
             .WithMany(x => x.Phrases)
             .HasForeignKey(x => x.UserId)
             .OnDelete(DeleteBehavior.Cascade);

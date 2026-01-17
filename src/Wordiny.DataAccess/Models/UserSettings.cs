@@ -6,6 +6,7 @@ public class UserSettings
 {
     public long UserId { get; protected set; }
     public DateTimeOffset Updated { get; protected set; }
+    public User? User { get; protected set; }
 
     public RepeatFrequencyInDay RepeatFrequencyInDay 
     {

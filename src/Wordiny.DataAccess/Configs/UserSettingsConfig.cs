@@ -18,8 +18,8 @@ internal class UserSettingsConfig : IEntityTypeConfiguration<UserSettings>
         builder.HasIndex(x => x.RepeatFrequencyInDay);
 
         builder
-            .HasOne<User>()
-            .WithOne()
+            .HasOne(x => x.User)
+            .WithOne(x => x.Settings)
             .HasForeignKey<UserSettings>(x => x.UserId)
             .OnDelete(DeleteBehavior.Cascade);
     }

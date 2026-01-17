@@ -4,6 +4,7 @@ public class Phrase
 {
     public long Id { get; protected set; }
     public long UserId { get; protected set; }
+    public User? User { get; protected set; }
     public string NativeText { get; protected set; } = string.Empty;
     public string? TranslationText { get; protected set; }
     public MemoryState MemoryState { get; protected set; }
