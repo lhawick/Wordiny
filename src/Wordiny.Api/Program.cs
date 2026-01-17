@@ -100,18 +100,20 @@ builder.Services.AddScoped<ITelegramApiService, TelegramApiService>();
 builder.Services.AddScoped<IPhraseService, PhraseService>();
 
 // database
-using var connection = new SqliteConnection("DataSource=:memory:");
-connection.Open();
+var wordinyDbConnectionString = builder.Configuration.GetConnectionString("WordinyDb");
+if (string.IsNullOrWhiteSpace(wordinyDbConnectionString))
+{
+    throw new InvalidOperationException("WordinyDb connection string is not provided");
+}
 
 builder.Services.AddDbContext<WordinyDbContext>(options =>
 {
-    options.UseSqlite(connection);
+    options.UseNpgsql(wordinyDbConnectionString);
 });
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-//app.UseHttpsRedirection();
 
 app.MapPost("/update", OnUpdate).AddEndpointFilter<ExceptionFilter>();
 

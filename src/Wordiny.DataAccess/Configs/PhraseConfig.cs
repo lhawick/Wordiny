@@ -18,8 +18,6 @@ internal class PhraseConfig : IEntityTypeConfiguration<Phrase>
         builder.Property(x => x.TranslationText).HasColumnName("translation_text");
         builder.Property(x => x.MemoryState).HasColumnName("memory_state");
         builder.Property(x => x.Added).HasColumnName("added");
-        builder.Property(x => x.PhraseTgMessageId).HasColumnName("phrase_tg_message_id");
-        builder.Property(x => x.TranslationTgMessageId).HasColumnName("translation_tg_message_id");
 
         builder.HasIndex(x => x.UserId, "phrases__user_id__ix");
         builder.HasIndex(x => x.MemoryState, "phrases__memory_state__ix");
