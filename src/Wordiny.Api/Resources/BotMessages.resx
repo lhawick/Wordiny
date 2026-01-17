@@ -176,7 +176,7 @@
 &lt;/keyboard&gt;</value>
   </data>
   <data name="AwaitingWordTranslation_Complete" xml:space="preserve">
-    <value>Перевод для {0} добавлен -- {1}
+    <value>Перевод для {0} добавлен — {1}
 &lt;keyboard reply_remove&gt;
 &lt;/keyboard&gt;</value>
   </data>
