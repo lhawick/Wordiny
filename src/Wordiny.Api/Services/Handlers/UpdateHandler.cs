@@ -153,7 +153,13 @@ public class UpdateHandler : IUpdateHandler
                         break;
                     }
 
-                    var callback = new CallbackQuery(callbackQuery.From.Id, callbackQuery.Data);
+                    if (callbackQuery.Message is null)
+                    {
+                        _logger.LogError("Callback message id is null");
+                        break;
+                    }
+
+                    var callback = new CallbackQuery(callbackQuery.From.Id, callbackQuery.Message.Id, callbackQuery.Data);
 
                     await _callbackQueryHandler.HandleAsync(callback, token);
 

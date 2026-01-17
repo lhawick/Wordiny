@@ -13,6 +13,11 @@ public interface ITelegramApiService
         string message,
         IEnumerable<InlineButton>? inlineButtons = null,
         CancellationToken token = default);
+
+    public Task DeleteMessageAsync(
+        long userId,
+        int messageId,
+        CancellationToken token = default);
 }
 
 public class TelegramApiService : ITelegramApiService
@@ -74,5 +79,10 @@ public class TelegramApiService : ITelegramApiService
         sb.AppendLine("</keyboard>");
 
         return sb.ToString();
+    }
+
+    public async Task DeleteMessageAsync(long userId, int messageId, CancellationToken token = default)
+    {
+        await _botClient.DeleteMessage(userId, messageId, token);
     }
 }

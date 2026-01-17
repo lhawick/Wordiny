@@ -59,6 +59,7 @@ public class CallbackQueryHandler : ICallbackQueryHandler
                     }
 
                     await _phraseService.RemovePhraseAsync(phraseId, token);
+                    await _telegramApiService.DeleteMessageAsync(userId, callback.MessageId, token);
                     await _telegramApiService.SendMessageAsync(userId, "Успешно удалено", token: token);
 
                     break;
