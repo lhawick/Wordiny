@@ -19,5 +19,15 @@ internal class UserConfig : IEntityTypeConfiguration<User>
         builder.Property(x => x.InputState).HasColumnName("input_state");
 
         builder.HasIndex(x => x.IsDisabled);
+
+        builder
+            .HasMany<Phrase>()
+            .WithOne()
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder
+            .HasOne<UserSettingsConfig>()
+            .WithOne()
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

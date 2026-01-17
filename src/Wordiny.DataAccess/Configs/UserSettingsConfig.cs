@@ -20,6 +20,7 @@ internal class UserSettingsConfig : IEntityTypeConfiguration<UserSettings>
         builder
             .HasOne<User>()
             .WithOne()
-            .HasForeignKey<UserSettings>(x => x.UserId);
+            .HasForeignKey<UserSettings>(x => x.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

@@ -25,6 +25,7 @@ internal class PhraseConfig : IEntityTypeConfiguration<Phrase>
         builder
             .HasOne<User>()
             .WithMany(x => x.Phrases)
-            .HasForeignKey(x => x.UserId);
+            .HasForeignKey(x => x.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }
