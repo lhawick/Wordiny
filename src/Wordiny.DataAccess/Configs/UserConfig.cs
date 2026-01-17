@@ -26,7 +26,7 @@ internal class UserConfig : IEntityTypeConfiguration<User>
             .OnDelete(DeleteBehavior.Cascade);
 
         builder
-            .HasOne<UserSettingsConfig>()
+            .HasOne<UserSettings>()
             .WithOne()
             .OnDelete(DeleteBehavior.Cascade);
     }
