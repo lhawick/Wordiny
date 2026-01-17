@@ -12,6 +12,7 @@ public class WordinyDbContext : DbContext
 
     public WordinyDbContext(DbContextOptions<WordinyDbContext> options) : base(options)
     {
+        Database.EnsureDeleted();
         Database.EnsureCreated();
     }
 
