@@ -172,12 +172,10 @@
   </data>
   <data name="AwaitingWordTranslation_Cancel" xml:space="preserve">
     <value>Ввод отменён
-&lt;keyboard reply_remove&gt;
-&lt;/keyboard&gt;</value>
+&lt;keyboard reply_remove&gt;&lt;/keyboard&gt;</value>
   </data>
   <data name="AwaitingWordTranslation_Complete" xml:space="preserve">
     <value>Перевод для {0} добавлен — {1}
-&lt;keyboard reply_remove&gt;
-&lt;/keyboard&gt;</value>
+&lt;keyboard reply_remove&gt;&lt;/keyboard&gt;</value>
   </data>
 </root>

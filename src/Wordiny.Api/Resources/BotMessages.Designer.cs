@@ -74,8 +74,7 @@ namespace Wordiny.Api.Resources {
         
         /// <summary>
         ///   Looks up a localized string similar to Ввод отменён
-        ///&lt;keyboard reply_remove&gt;
-        ///&lt;/keyboard&gt;.
+        ///&lt;keyboard reply_remove&gt;&lt;/keyboard&gt;.
         /// </summary>
         public static string AwaitingWordTranslation_Cancel {
             get {
@@ -85,8 +84,7 @@ namespace Wordiny.Api.Resources {
         
         /// <summary>
         ///   Looks up a localized string similar to Перевод для {0} добавлен — {1}
-        ///&lt;keyboard reply_remove&gt;
-        ///&lt;/keyboard&gt;.
+        ///&lt;keyboard reply_remove&gt;&lt;/keyboard&gt;.
         /// </summary>
         public static string AwaitingWordTranslation_Complete {
             get {
