@@ -111,6 +111,7 @@ public class UserService : IUserService
         if (userSettings is null)
         {
             userSettings = new(userId);
+            _db.Add(userSettings);
         }
 
         userSettings.TimeZone = timeZone;
@@ -124,6 +125,7 @@ public class UserService : IUserService
         if (userSettings is null)
         {
             userSettings = new(userId);
+            _db.Add(userSettings);
         }
 
         userSettings.RepeatFrequencyInDay = frequency;
