@@ -195,7 +195,7 @@ public class MessageHandler : IMessageHandler
                     {
                         await _userService.SetInputStateAsync(userId, UserInputState.AwaitingPhraseAdding, token);
                         await _phraseService.RemoveLastPhraseAsync(userId, token);
-                        await _telegramApiService.SendMessageAsync(userId, "Ввод отменён", token: token);
+                        await _telegramApiService.SendMessageAsync(userId, BotMessages.AwaitingWordTranslation_Cancel, token: token);
 
                         break;
                     }
