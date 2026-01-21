@@ -208,7 +208,6 @@ public class MessageHandler : IMessageHandler
                     await _telegramApiService.SendMessageAsync(
                         userId, 
                         responseMessage,
-                        [new("Удалить 🗑️", CallbackCommands.DeletePhrase(phrase.Id))],
                         token: token);
 
                     break;
