@@ -52,32 +52,6 @@ public class CallbackQueryHandler : ICallbackQueryHandler
 
         switch (callbackData[0])
         {
-            case CallbackCommands.DELETE_PHRASE:
-                {
-                    if (!long.TryParse(callbackData[1], out var phraseId))
-                    {
-                        throw new InvalidOperationException("Failed to parse phraseId from callback data");
-                    }
-
-                    await _phraseService.RemovePhraseAsync(phraseId, token);
-                    await _telegramApiService.DeleteMessageAsync(userId, callback.MessageId, token);
-                    await _telegramApiService.SendMessageAsync(userId, "Успешно удалено", token: token);
-
-                    break;
-                }
-            case CallbackCommands.CANCEL_PHRASE_INPUT:
-                {
-                    if (!long.TryParse(callbackData[1], out var phraseId))
-                    {
-                        throw new InvalidOperationException("Failed to parse phraseId from callback data");
-                    }
-
-                    await _userService.SetInputStateAsync(userId, DataAccess.Models.UserInputState.AwaitingPhraseAdding, token);
-                    await _phraseService.RemovePhraseAsync(phraseId, token);
-                    await _telegramApiService.SendMessageAsync(userId, BotMessages.AwaitingWordTranslation_Cancel, token: token);
-
-                    break;
-                }
         }
     }
 }
