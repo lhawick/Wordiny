@@ -61,7 +61,8 @@ namespace Wordiny.Api.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Введите перевод для {0}
+        ///   Looks up a localized string similar to Какой перевод для «{0}»?
+        ///(Если передумал, нажми «Отменить ввод ❌» снизу.)
         ///&lt;keyboard reply&gt;
         ///&lt;button text=&quot;Отменить ввод ❌&quot;&gt;
         ///&lt;/keyboard&gt;.
@@ -83,7 +84,8 @@ namespace Wordiny.Api.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Перевод для {0} добавлен — {1}
+        ///   Looks up a localized string similar to Добавил: {0} — {1}.
+        ///Присылай следующее слово или напиши /help, чтобы посмотреть команды.
         ///&lt;keyboard reply_remove&gt;&lt;/keyboard&gt;.
         /// </summary>
         public static string AwaitingWordTranslation_Complete {
@@ -93,7 +95,7 @@ namespace Wordiny.Api.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Часовой пояс {0} обнаружен правильно?
+        ///   Looks up a localized string similar to Нашёл часовой пояс: {0}. Всё верно?
         ///&lt;keyboard reply&gt;
         ///&lt;button text=&quot;Да&quot;&gt;
         ///&lt;button text=&quot;Нет&quot;&gt;
@@ -115,7 +117,9 @@ namespace Wordiny.Api.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Настройка завершена!
+        ///   Looks up a localized string similar to Готово! Теперь можешь прислать первое слово или фразу
+        ///
+        ///Например, попробуй написать hello (это означает привет)
         ///&lt;keyboard reply_remove&gt;&lt;/keyboard&gt;.
         /// </summary>
         public static string SetupFinished {
@@ -125,7 +129,7 @@ namespace Wordiny.Api.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Пожалуйста, выберете сколько слов в день бот будет вам присылать
+        ///   Looks up a localized string similar to Сколько уведомлений в день присылать?
         ///&lt;keyboard reply&gt;
         ///&lt;button text=&quot;2&quot;&gt;
         ///&lt;button text=&quot;3&quot;&gt;
@@ -141,7 +145,7 @@ namespace Wordiny.Api.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Частота отправки указана неверно. Пожалуйста, укажите значение с клавиатуры.
+        ///   Looks up a localized string similar to Количество уведомлений в день может быть от 2 до 5 включительно.
         /// </summary>
         public static string SetupFrequency_InvalidInput {
             get {
@@ -150,7 +154,7 @@ namespace Wordiny.Api.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Пожалуйста, отправьте нам вашу геолокацию чтобы определить ваш часовой пояс. Это необходимо для того, чтобы бот не отправлял вам сообщения ночью.
+        ///   Looks up a localized string similar to Чтобы не писать тебе ночью, нужен твой часовой пояс. Отправь геолокацию кнопкой ниже
         ///&lt;keyboard reply&gt;
         ///&lt;button text=&quot;Отправить геолокацию 📍&quot; request_location&gt;
         ///&lt;/keyboard&gt;.
@@ -162,7 +166,7 @@ namespace Wordiny.Api.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Не удалось определить часовой пояс по геолокации. Пожалуйста, попробуйте ещё раз позже.
+        ///   Looks up a localized string similar to Не смог найти часовой пояс по твоей геолокации. Пожалуйста, попробуй ещё раз позже.
         /// </summary>
         public static string SetupTimeZone_Failed {
             get {
@@ -171,7 +175,7 @@ namespace Wordiny.Api.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Пожалуйста, отправьте вашу геолокацию через кнопку ниже.
+        ///   Looks up a localized string similar to Пожалуйста, отправь свою геолокацию через кнопку внизу.
         /// </summary>
         public static string SetupTimeZone_InvalidLocation {
             get {
@@ -189,9 +193,11 @@ namespace Wordiny.Api.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Добро пожаловать!
+        ///   Looks up a localized string similar to Привет! Помогу учить иностранные слова и фразы, которые ты добавишь
         ///
-        ///Этот бот создан для того, чтобы помогать учить и повторять иностранные слова за счёт отправки уведомлений с определённой периодичностью.
+        ///Ты добавляешь слово и его перевод, а я несколько раз в день присылаю тебе уведомление с одним из них, чтобы они лучше откладывались в памяти
+        ///
+        ///Давай сначала узнаем где ты и сколько уведомлений в день ты готов видеть.
         /// </summary>
         public static string Welcome {
             get {
