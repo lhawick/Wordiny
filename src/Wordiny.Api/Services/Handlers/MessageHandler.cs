@@ -192,7 +192,7 @@ public class MessageHandler : IMessageHandler
                         break;
                     }
 
-                    var phrase = await _phraseService.AddPhraseTranslationAsync(userId, message.Text, token);
+                    var phrase = await _phraseService.AddTranslationToLastPhraseAsync(userId, message.Text, token);
                     await _userService.SetInputStateAsync(userId, UserInputState.AwaitingPhraseAdding, token);
 
                     var responseMessage = string.Format(BotMessages.AwaitingWordTranslation_Complete, phrase.NativeText, phrase.TranslationText);

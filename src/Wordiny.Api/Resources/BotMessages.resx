@@ -165,14 +165,10 @@
 &lt;keyboard reply_remove&gt;&lt;/keyboard&gt;</value>
   </data>
   <data name="AwaitingWordTranslation" xml:space="preserve">
-    <value>Введите перевод для {0}
-&lt;keyboard reply&gt;
-&lt;button text="Отменить ввод ❌"&gt;
-&lt;/keyboard&gt;</value>
+    <value>Введите перевод для {0}</value>
   </data>
   <data name="AwaitingWordTranslation_Cancel" xml:space="preserve">
-    <value>Ввод отменён
-&lt;keyboard reply_remove&gt;&lt;/keyboard&gt;</value>
+    <value>Ввод отменён</value>
   </data>
   <data name="AwaitingWordTranslation_Complete" xml:space="preserve">
     <value>Перевод для {0} добавлен — {1}</value>

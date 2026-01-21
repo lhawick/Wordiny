@@ -7,7 +7,7 @@ namespace Wordiny.Api.Services;
 public interface IPhraseService
 {
     Task<Phrase> AddNewPhraseAsync(long userId, string phrase, CancellationToken token = default);
-    Task<Phrase> AddPhraseTranslationAsync(long userId, string translation, CancellationToken token = default);
+    Task<Phrase> AddTranslationToLastPhraseAsync(long userId, string translation, CancellationToken token = default);
     Task RemovePhraseAsync(long phraseId, CancellationToken token = default);
 }
 
@@ -32,7 +32,7 @@ public class PhraseService : IPhraseService
         return newPhrase;
     }
 
-    public async Task<Phrase> AddPhraseTranslationAsync(long userId, string translation, CancellationToken token = default)
+    public async Task<Phrase> AddTranslationToLastPhraseAsync(long userId, string translation, CancellationToken token = default)
     {
         var lastPhrase = await _db.Phrases
             .OrderBy(x => x.Added)

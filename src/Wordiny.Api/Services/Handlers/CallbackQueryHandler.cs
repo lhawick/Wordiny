@@ -1,5 +1,6 @@
 ﻿using Wordiny.Api.Helpers;
 using Wordiny.Api.Models;
+using Wordiny.Api.Resources;
 
 namespace Wordiny.Api.Services.Handlers;
 
@@ -73,7 +74,7 @@ public class CallbackQueryHandler : ICallbackQueryHandler
 
                     await _userService.SetInputStateAsync(userId, DataAccess.Models.UserInputState.AwaitingPhraseAdding, token);
                     await _phraseService.RemovePhraseAsync(phraseId, token);
-                    await _telegramApiService.SendMessageAsync(userId, "Ввод отменён", token: token);
+                    await _telegramApiService.SendMessageAsync(userId, BotMessages.AwaitingWordTranslation_Cancel, token: token);
 
                     break;
                 }
