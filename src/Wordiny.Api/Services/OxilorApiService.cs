@@ -3,7 +3,7 @@ using System.Web;
 
 namespace Wordiny.Api.Services;
 
-internal record CityData(string Name, string FullRegion);
+internal record CityData(string Name, string FullRegion, string TimeZone);
 
 internal interface IOxilorApiService
 {
@@ -56,7 +56,7 @@ internal class OxilorApiService : IOxilorApiService
             {
                 // Всё кроме континента
                 var parentRegion = string.Join(", ", rd.ParentRegions[..^1]);
-                return new CityData(rd.Name, parentRegion);
+                return new CityData(rd.Name, parentRegion, rd.TimeZone);
             })
             .ToArray();
     }
