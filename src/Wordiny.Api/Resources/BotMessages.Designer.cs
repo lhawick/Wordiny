@@ -184,6 +184,17 @@ namespace Wordiny.Api.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Что-то пошло не так :(
+        ///
+        ///Попробуй ещё раз попозже.
+        /// </summary>
+        public static string UnexpectedError {
+            get {
+                return ResourceManager.GetString("UnexpectedError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to С возвращением!.
         /// </summary>
         public static string UserReturn {

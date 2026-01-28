@@ -184,4 +184,9 @@
 Присылай следующее слово или напиши /help, чтобы посмотреть команды.
 &lt;keyboard reply_remove&gt;&lt;/keyboard&gt;</value>
   </data>
+  <data name="UnexpectedError" xml:space="preserve">
+    <value>Что-то пошло не так :(
+
+Попробуй ещё раз попозже</value>
+  </data>
 </root>

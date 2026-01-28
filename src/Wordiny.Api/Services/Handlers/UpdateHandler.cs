@@ -2,13 +2,14 @@
 using Wordiny.Api.Exceptions;
 using Wordiny.Api.Extensions;
 using Wordiny.Api.Models;
+using Wordiny.Api.Resources;
 using Wordiny.DataAccess;
 
 namespace Wordiny.Api.Services.Handlers;
 
 public enum UpdateHandleResult
 {
-    Succes = 1,
+    Success = 1,
     RetryNeeded = 2,
     Error = 3,
 }
@@ -52,7 +53,7 @@ public class UpdateHandler : IUpdateHandler
             await HandleInnerAsync(update, token);
             await dbTransaction.CommitAsync(token);
 
-            return UpdateHandleResult.Succes;
+            return UpdateHandleResult.Success;
         }
         catch (UserUndeliverableException ex)
         {
@@ -72,7 +73,7 @@ public class UpdateHandler : IUpdateHandler
 
             await _dbContext.SaveChangesAsync(CancellationToken.None);
 
-            return UpdateHandleResult.Succes;
+            return UpdateHandleResult.Success;
         }
         catch (TelegramSendMessageException ex)
         {
@@ -90,7 +91,7 @@ public class UpdateHandler : IUpdateHandler
             {
                 await _telegramApiService.SendMessageAsync(
                     update.Message.From.Id,
-                    "Простите, что-то пошло не так, попробуйте позже",
+                    BotMessages.UnexpectedError,
                     token: token);
             }
 

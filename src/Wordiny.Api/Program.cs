@@ -13,6 +13,7 @@ using Wordiny.Api.Filters;
 using Wordiny.Api.Services;
 using Wordiny.Api.Services.Handlers;
 using Wordiny.DataAccess;
+using System.Net.Http.Headers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -58,8 +59,6 @@ builder.Services.AddKeyedSingleton<ITelegramBotClient, TelegramBotClient>("Wordi
     var botToken = config["WordinyBotConfig:BotToken"]
         ?? throw new InvalidOperationException("Wordiny BotToken is not provided");
 
-    var environment = services.GetRequiredService<IHostEnvironment>();
-
     var httpClient = services.GetRequiredService<IHttpClientFactory>().CreateClient("Wordiny");
 
     var botOptions = new TelegramBotClientOptions(botToken);
@@ -74,13 +73,24 @@ builder.Services.AddKeyedSingleton<ITelegramBotClient, TelegramBotClient>("Wordi
     var botToken = config["WordinyLoggerBotConfig:BotToken"]
         ?? throw new InvalidOperationException("WordinyLogger BotToken is not provided");
 
-    var environment = services.GetRequiredService<IHostEnvironment>();
-
     var httpClient = services.GetRequiredService<IHttpClientFactory>().CreateClient("WordinyLogger");
 
     var botOptions = new TelegramBotClientOptions(botToken);
 
     return new TelegramBotClient(botOptions, httpClient);
+});
+
+builder.Services.AddHttpClient<IOxilorApiService, OxilorApiService>((sp, httpClient) =>
+{
+    var config = sp.GetRequiredService<IConfiguration>();
+    var apiKey = config["OxilorApi:ApiKey"]
+        ?? throw new InvalidOperationException("Oxilor api key is not provided");
+    var baseUrl = config["OxilorApi:BaseUrl"] 
+        ?? throw new InvalidOperationException("Oxilor api base url is not provided");
+
+    httpClient.BaseAddress = new Uri(baseUrl);
+    httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
+    httpClient.DefaultRequestHeaders.AcceptLanguage.Add(new("ru"));
 });
 
 builder.Services.AddHostedService<ConfigureWebhookService>();
@@ -148,7 +158,7 @@ async Task<IResult> OnUpdate(
 
     return handleResult switch
     {
-        UpdateHandleResult.Succes => Results.Ok(),
+        UpdateHandleResult.Success => Results.Ok(),
         UpdateHandleResult.RetryNeeded => Results.InternalServerError(),
         UpdateHandleResult.Error => Results.Ok(),
         _ => Results.Ok(),
