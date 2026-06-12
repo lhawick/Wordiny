@@ -366,3 +366,7 @@ MigrationBackup/
 FodyWeavers.xsd
 /deploy.sh
 .DS_Store
+
+
+# Vs Code
+.vscode/
