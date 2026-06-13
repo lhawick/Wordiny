@@ -82,7 +82,7 @@ internal class MessageHandler : IMessageHandler
                 }
             default:
                 {
-                    _logger.LogError("No handlers for bot command: {botCommand}", message.Text);
+                    await _telegramApiService.SendMessageAsync(userId, BotMessages.UnknowBotCommand, token: token);
                     break;
                 }
         }
@@ -129,7 +129,7 @@ internal class MessageHandler : IMessageHandler
                         {
                             await _telegramApiService.SendMessageAsync(
                                 userId,
-                                BotMessages.CitiesNotFound,
+                                BotMessages.SetupTimeZone_CitiesNotFound,
                                 token: token
                             );
 

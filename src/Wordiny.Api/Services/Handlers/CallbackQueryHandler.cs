@@ -84,7 +84,7 @@ public class CallbackQueryHandler : ICallbackQueryHandler
                 }
             default:
                 {
-                    _logger.LogError("No handlers for bot callback command: {callbackType}", callbackType);
+                    await _telegramApiService.SendMessageAsync(userId, BotMessages.UnknowCallbackType, token: token);
                     break;
                 }
         }

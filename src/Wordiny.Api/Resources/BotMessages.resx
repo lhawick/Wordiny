@@ -186,8 +186,17 @@
         <value>Что-то пошло не так :(
 Попробуй ещё раз попозже</value>
     </data>
-    <data name="CitiesNotFound" xml:space="preserve">
+    <data name="SetupTimeZone_CitiesNotFound" xml:space="preserve">
         <value>Город не найден :(
-            Попробуй указать какой-нибудь город поблизости</value>
+Попробуй указать какой-нибудь город поблизости</value>
+    </data>
+    <data name="UnknowBotCommand" xml:space="preserve">
+        <value>Неизвестная команда</value>
+    </data>
+    <data name="UnknowCallbackType" xml:space="preserve">
+        <value>Не знаю как реагировать на эту кнопку</value>
+    </data>
+    <data name="UnknowMessageType" xml:space="preserve">
+        <value>Я пока не умею обрабатывать такой контент</value>
     </data>
 </root>

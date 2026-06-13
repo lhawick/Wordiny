@@ -136,6 +136,11 @@ internal class UpdateHandler : IUpdateHandler
                             Telegram.Bot.Types.Enums.MessageType.Text,
                             Telegram.Bot.Types.Enums.MessageType.Location);
 
+                        await _telegramApiService.SendMessageAsync(
+                            msg.From.Id, 
+                            BotMessages.UnknowMessageType, 
+                            token: token);
+
                         break;
                     }
 

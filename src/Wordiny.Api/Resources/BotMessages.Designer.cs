@@ -134,7 +134,22 @@ public class BotMessages
 	
 	/// <summary>
 	/// Looks up a localized string similar to Город не найден :(
-		///             Попробуй указать какой-нибудь город поблизости.
+		/// Попробуй указать какой-нибудь город поблизости.
 	/// </summary>
-	public static string CitiesNotFound => ResourceManager.GetString("CitiesNotFound", Culture);
+	public static string SetupTimeZone_CitiesNotFound => ResourceManager.GetString("SetupTimeZone_CitiesNotFound", Culture);
+	
+	/// <summary>
+	/// Looks up a localized string similar to Неизвестная команда.
+	/// </summary>
+	public static string UnknowBotCommand => ResourceManager.GetString("UnknowBotCommand", Culture);
+	
+	/// <summary>
+	/// Looks up a localized string similar to Не знаю как реагировать на эту кнопку.
+	/// </summary>
+	public static string UnknowCallbackType => ResourceManager.GetString("UnknowCallbackType", Culture);
+	
+	/// <summary>
+	/// Looks up a localized string similar to Я пока не умею обрабатывать такой контент.
+	/// </summary>
+	public static string UnknowMessageType => ResourceManager.GetString("UnknowMessageType", Culture);
 }
