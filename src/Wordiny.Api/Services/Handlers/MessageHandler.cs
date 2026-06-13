@@ -187,9 +187,9 @@ internal class MessageHandler : IMessageHandler
 
                             break;
                         case "нет":
+                            await _userService.SetTimeZoneAsync(userId, null, token);
                             await _userService.SetInputStateAsync(userId, UserInputState.SetTimeZone, token);
                             await _telegramApiService.SendMessageAsync(userId, BotMessages.SetupTimeZone, token: token);
-                            await _userService.SetTimeZoneAsync(userId, null, token);
 
                             break;
                         default:

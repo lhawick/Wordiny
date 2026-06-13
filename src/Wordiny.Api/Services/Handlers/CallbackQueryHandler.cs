@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using Wordiny.Api.Helpers;
+﻿using Wordiny.Api.Helpers;
 using Wordiny.Api.Models;
 using Wordiny.Api.Resources;
 using Wordiny.DataAccess.Models;
