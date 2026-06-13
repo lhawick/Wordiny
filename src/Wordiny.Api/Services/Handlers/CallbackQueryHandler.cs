@@ -1,6 +1,8 @@
-﻿using Wordiny.Api.Helpers;
+﻿using System.Reflection;
+using Wordiny.Api.Helpers;
 using Wordiny.Api.Models;
 using Wordiny.Api.Resources;
+using Wordiny.DataAccess.Models;
 
 namespace Wordiny.Api.Services.Handlers;
 
@@ -50,8 +52,41 @@ public class CallbackQueryHandler : ICallbackQueryHandler
             return;
         }
 
-        switch (callbackData[0])
+        var callbackType =callbackData[0];
+
+        switch (callbackType)
         {
+            case CallbackCommands.SPECIFY_CITY:
+                {
+                    if (callbackData.Length < 2)
+                    {
+                        throw new InvalidOperationException(
+                            $"Callback {nameof(CallbackCommands.SPECIFY_CITY)} has invalid data length");
+                    }
+
+                    var timeZone = callbackData[1];
+
+                    if (string.IsNullOrWhiteSpace(timeZone))
+                    {
+                        throw new InvalidOperationException(
+                            $"Callback {nameof(CallbackCommands.SPECIFY_CITY)} has not valid timeZone in data");
+                    }
+
+                    await _userService.SetTimeZoneAsync(userId, timeZone, token);
+                    await _userService.SetInputStateAsync(userId, UserInputState.ConfirmTimeZone, token);
+
+                    await _telegramApiService.SendMessageAsync(
+                        userId, 
+                        string.Format(BotMessages.ConfirmTimeZone, timeZone), 
+                        token: token);
+
+                    break;
+                }
+            default:
+                {
+                    _logger.LogError("No handlers for bot callback command: {callbackType}", callbackType);
+                    break;
+                }
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using GeoTimeZone;
+﻿using System.Text;
+using GeoTimeZone;
 using Wordiny.Api.Helpers;
 using Wordiny.Api.Models;
 using Wordiny.Api.Resources;
@@ -6,28 +7,31 @@ using Wordiny.DataAccess.Models;
 
 namespace Wordiny.Api.Services.Handlers;
 
-public interface IMessageHandler
+internal interface IMessageHandler
 {
     Task HandleAsync(Message message, CancellationToken token = default);
 }
 
-public class MessageHandler : IMessageHandler
+internal class MessageHandler : IMessageHandler
 {
     private readonly ILogger<MessageHandler> _logger;
     private readonly IUserService _userService;
     private readonly ITelegramApiService _telegramApiService;
     private readonly IPhraseService _phraseService;
+    private readonly IOxilorApiService _oxilorApiService;
 
     public MessageHandler(
         ILogger<MessageHandler> logger,
         IUserService userService,
         ITelegramApiService telegramApiService,
-        IPhraseService phraseService)
+        IPhraseService phraseService,
+        IOxilorApiService oxilorApiService)
     {
         _logger = logger;
         _userService = userService;
         _telegramApiService = telegramApiService;
         _phraseService = phraseService;
+        _oxilorApiService = oxilorApiService;
     }
 
     public async Task HandleAsync(Message message, CancellationToken token = default)
@@ -93,34 +97,84 @@ public class MessageHandler : IMessageHandler
         {
             case UserInputState.SetTimeZone:
                 {
-                    if (message.Location is null)
+                    if (message.Location is not null)
                     {
+                        var tzResult = TimeZoneLookup.GetTimeZone(message.Location.Latitude, message.Location.Longitude);
+                        if (tzResult is null || tzResult.Result is null)
+                        {
+                            await _telegramApiService.SendMessageAsync(
+                                userId,
+                                BotMessages.SetupTimeZone_Failed,
+                                token: token);
+
+                            break;
+                        }
+
+                        var ianaTzId = tzResult.Result;
+
+                        await _userService.SetTimeZoneAsync(userId, ianaTzId, token);
+                        await _userService.SetInputStateAsync(userId, UserInputState.ConfirmTimeZone, token);
+
                         await _telegramApiService.SendMessageAsync(
-                            userId,
-                            BotMessages.SetupTimeZone_InvalidLocation,
+                            userId, 
+                            string.Format(BotMessages.ConfirmTimeZone, ianaTzId), 
                             token: token);
 
                         break;
                     }
-
-                    var tzResult = TimeZoneLookup.GetTimeZone(message.Location.Latitude, message.Location.Longitude);
-                    if (tzResult is null || tzResult.Result is null)
+                    else if (!string.IsNullOrWhiteSpace(message.Text))
                     {
+                        var foundCities = await _oxilorApiService.FindCitiesByNameAsync(message.Text, token);
+                        if (!foundCities.Any())
+                        {
+                            await _telegramApiService.SendMessageAsync(
+                                userId,
+                                BotMessages.CitiesNotFound,
+                                token: token
+                            );
+
+                            break;
+                        }
+
+                        // Нашли один город
+                        if (foundCities.Length == 1)
+                        {
+                            var foundCity = foundCities.Single();
+
+                            await _userService.SetTimeZoneAsync(userId, foundCity.TimeZone, token);
+                            await _userService.SetInputStateAsync(userId, UserInputState.ConfirmTimeZone, token);
+
+                            await _telegramApiService.SendMessageAsync(
+                                userId, 
+                                string.Format(BotMessages.ConfirmTimeZone, foundCity.TimeZone), 
+                                token: token);
+
+                            break;
+                        }
+
+                        var messageBuilder = new StringBuilder("Уточни свой город:");
+                        
+                        var messageToSend = foundCities
+                            .Select((city, i) => $"{i}. {city.Name}")
+                            .Aggregate(messageBuilder, (builder, city) => builder.AppendLine(city))
+                            .ToString();
+
                         await _telegramApiService.SendMessageAsync(
                             userId,
-                            BotMessages.SetupTimeZone_Failed,
-                            token: token);
+                            messageToSend,
+                            foundCities.Select((x, i) => 
+                                new InlineButton(i.ToString(), CallbackCommands.SpecifyCity(x.TimeZone))),
+                            token);
+
+                        await _userService.SetInputStateAsync(userId, UserInputState.SpecifyCity, token);
+                    }
+                    else
+                    {
+                        await _telegramApiService.SendMessageAsync(userId, BotMessages.SetupTimeZone, token: token);
 
                         break;
                     }
-
-                    var ianaTzId = tzResult.Result;
                     
-                    await _userService.SetTimeZoneAsync(userId, ianaTzId, token);
-                    await _userService.SetInputStateAsync(userId, UserInputState.ConfirmTimeZone, token);
-
-                    await _telegramApiService.SendMessageAsync(userId, string.Format(BotMessages.ConfirmTimeZone, ianaTzId), token: token);
-
                     break;
                 }
             case UserInputState.ConfirmTimeZone:
@@ -135,6 +189,7 @@ public class MessageHandler : IMessageHandler
                         case "нет":
                             await _userService.SetInputStateAsync(userId, UserInputState.SetTimeZone, token);
                             await _telegramApiService.SendMessageAsync(userId, BotMessages.SetupTimeZone, token: token);
+                            await _userService.SetTimeZoneAsync(userId, null, token);
 
                             break;
                         default:

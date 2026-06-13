@@ -3,11 +3,11 @@ using System.Web;
 
 namespace Wordiny.Api.Services;
 
-internal record CityData(string Name, string FullRegion, string TimeZone);
+internal record CityData(string Name, string TimeZone);
 
 internal interface IOxilorApiService
 {
-    Task<CityData[]> GetCitiesDataByNameAsync(string cityName, CancellationToken token = default);
+    Task<CityData[]> FindCitiesByNameAsync(string cityName, CancellationToken token = default);
 }
 
 internal class OxilorApiService : IOxilorApiService
@@ -19,14 +19,17 @@ internal class OxilorApiService : IOxilorApiService
         _httpClient = httpClient;
     }
 
-    private record Region(string Name, string Type, string TimeZone, string[] ParentRegions);
+    private record Region(string Name, string Type, string TimeZone, ParentRegion[] ParentRegions);
+    private record ParentRegion(string Name);
 
-    public async Task<CityData[]> GetCitiesDataByNameAsync(string cityName, CancellationToken token = default)
+    public async Task<CityData[]> FindCitiesByNameAsync(string cityName, CancellationToken token = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(cityName, nameof(cityName));
 
+        var trimmedCityName = cityName.Trim();
+
         var query = HttpUtility.ParseQueryString(string.Empty);
-        query["searchTerm"] = cityName;
+        query["searchTerm"] = trimmedCityName;
         query["type"] = "city";
 
         using var request = new HttpRequestMessage(HttpMethod.Get, $"search-regions?{query}");
@@ -50,14 +53,18 @@ internal class OxilorApiService : IOxilorApiService
         }
 
         return regionsData
+            .Where(x => x.Type.Equals("city", StringComparison.OrdinalIgnoreCase))
             // Только точные соответствия по названию города
-            .Where(rd => rd.Name.Equals(cityName, StringComparison.OrdinalIgnoreCase))
+            .Where(rd => rd.Name.Equals(trimmedCityName, StringComparison.OrdinalIgnoreCase))
             .Select(rd =>
             {
                 // Всё кроме континента
-                var parentRegion = string.Join(", ", rd.ParentRegions[..^1]);
-                return new CityData(rd.Name, parentRegion, rd.TimeZone);
+                var parentRegion = string.Join(", ", rd.ParentRegions[..^1].Select(r => r.Name));
+                var fullCityLocation = $"{rd.Name}, {parentRegion}";
+
+                return new CityData(fullCityLocation, rd.TimeZone);
             })
+            .Take(8)
             .ToArray();
     }
 }

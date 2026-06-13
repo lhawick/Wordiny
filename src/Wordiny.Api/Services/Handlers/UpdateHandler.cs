@@ -1,5 +1,5 @@
-﻿using System.Data.Common;
-using Wordiny.Api.Exceptions;
+﻿using Wordiny.Api.Exceptions;
+using System.Data.Common;
 using Wordiny.Api.Extensions;
 using Wordiny.Api.Models;
 using Wordiny.Api.Resources;
@@ -19,7 +19,7 @@ public interface IUpdateHandler
     Task<UpdateHandleResult> HandleAsync(Telegram.Bot.Types.Update update, CancellationToken token = default);
 }
 
-public class UpdateHandler : IUpdateHandler
+internal class UpdateHandler : IUpdateHandler
 {
     private readonly ILogger<UpdateHandler> _logger;
     private readonly IMessageHandler _messageHandler;
@@ -27,6 +27,7 @@ public class UpdateHandler : IUpdateHandler
     private readonly WordinyDbContext _dbContext;
     private readonly IUserService _userService;
     private readonly ITelegramApiService _telegramApiService;
+    private readonly ICacheService _cacheService;
 
     public UpdateHandler(
         ILogger<UpdateHandler> logger,
@@ -34,7 +35,8 @@ public class UpdateHandler : IUpdateHandler
         ICallbackQueryHandler callbackQueryHandler,
         WordinyDbContext dbContext,
         IUserService userService,
-        ITelegramApiService telegramApiService)
+        ITelegramApiService telegramApiService,
+        ICacheService cacheService)
     {
         _logger = logger;
         _messageHandler = messageHandler;
@@ -42,6 +44,7 @@ public class UpdateHandler : IUpdateHandler
         _dbContext = dbContext;
         _userService = userService;
         _telegramApiService = telegramApiService;
+        _cacheService = cacheService;
     }
 
     public async Task<UpdateHandleResult> HandleAsync(Telegram.Bot.Types.Update update, CancellationToken token = default)
@@ -51,6 +54,7 @@ public class UpdateHandler : IUpdateHandler
         try
         {
             await HandleInnerAsync(update, token);
+            _cacheService.Flush();
             await dbTransaction.CommitAsync(token);
 
             return UpdateHandleResult.Success;
@@ -59,6 +63,7 @@ public class UpdateHandler : IUpdateHandler
         {
             _logger.LogError(ex, "User {userId} undeliverable: {errorMessage}", ex.UserId, ex.GetFullExceptionMessage());
 
+            _cacheService.Clear();
             await dbTransaction.RollbackAsync(token);
             _dbContext.ChangeTracker.Clear();
 
@@ -80,6 +85,7 @@ public class UpdateHandler : IUpdateHandler
             _logger.LogError("Failed to send message to user {userId}: {errorMessage}", ex.UserId, ex.GetFullExceptionMessage());
 
             await dbTransaction.RollbackAsync(token);
+            _cacheService.Clear();
 
             return UpdateHandleResult.RetryNeeded;
         }
@@ -95,6 +101,7 @@ public class UpdateHandler : IUpdateHandler
                     token: token);
             }
 
+            _cacheService.Clear();
             await dbTransaction.RollbackAsync(token);
 
             if (ex is DbException)
@@ -120,7 +127,8 @@ public class UpdateHandler : IUpdateHandler
                         break;
                     }
 
-                    if (msg.Type is not Telegram.Bot.Types.Enums.MessageType.Text and not Telegram.Bot.Types.Enums.MessageType.Location)
+                    if (msg.Type is not Telegram.Bot.Types.Enums.MessageType.Text 
+                        and not Telegram.Bot.Types.Enums.MessageType.Location)
                     {
                         _logger.LogError(
                             "Message type is {messageType} instead of {textType} or {locationType}",
