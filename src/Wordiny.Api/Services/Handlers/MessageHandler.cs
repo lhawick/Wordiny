@@ -115,9 +115,11 @@ internal class MessageHandler : IMessageHandler
                         await _userService.SetTimeZoneAsync(userId, ianaTzId, token);
                         await _userService.SetInputStateAsync(userId, UserInputState.ConfirmTimeZone, token);
 
+                        var tzInfo = TimeZoneInfo.FindSystemTimeZoneById(ianaTzId);
+
                         await _telegramApiService.SendMessageAsync(
                             userId, 
-                            string.Format(BotMessages.ConfirmTimeZone, ianaTzId), 
+                            string.Format(BotMessages.ConfirmTimeZone, tzInfo.DisplayName), 
                             token: token);
 
                         break;
@@ -144,18 +146,20 @@ internal class MessageHandler : IMessageHandler
                             await _userService.SetTimeZoneAsync(userId, foundCity.TimeZone, token);
                             await _userService.SetInputStateAsync(userId, UserInputState.ConfirmTimeZone, token);
 
+                            var tzInfo = TimeZoneInfo.FindSystemTimeZoneById(foundCity.TimeZone);
+
                             await _telegramApiService.SendMessageAsync(
                                 userId, 
-                                string.Format(BotMessages.ConfirmTimeZone, foundCity.TimeZone), 
+                                string.Format(BotMessages.ConfirmTimeZone, tzInfo.DisplayName), 
                                 token: token);
 
                             break;
                         }
 
-                        var messageBuilder = new StringBuilder("Уточни свой город:");
+                        var messageBuilder = new StringBuilder("Уточни свой город:\n");
                         
                         var messageToSend = foundCities
-                            .Select((city, i) => $"{i}. {city.Name}")
+                            .Select((city, i) => $"{++i}. {city.Name}")
                             .Aggregate(messageBuilder, (builder, city) => builder.AppendLine(city))
                             .ToString();
 
@@ -163,7 +167,7 @@ internal class MessageHandler : IMessageHandler
                             userId,
                             messageToSend,
                             foundCities.Select((x, i) => 
-                                new InlineButton(i.ToString(), CallbackCommands.SpecifyCity(x.TimeZone))),
+                                new InlineButton((++i).ToString(), CallbackCommands.SpecifyCity(x.TimeZone))),
                             token);
 
                         await _userService.SetInputStateAsync(userId, UserInputState.SpecifyCity, token);

@@ -118,7 +118,8 @@
         <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
     </resheader>
     <data name="ConfirmTimeZone" xml:space="preserve">
-        <value>Нашёл часовой пояс: {0}. Всё верно?
+        <value>Нашёл часовой пояс: {0}.
+Всё верно?
 &lt;keyboard reply&gt;
 &lt;button text="Да"&gt;
 &lt;button text="Нет"&gt;
@@ -141,14 +142,16 @@
         <value>Количество уведомлений в день может быть от 2 до 5 включительно</value>
     </data>
     <data name="SetupTimeZone" xml:space="preserve">
-        <value>Чтобы не писать тебе ночью, нужен твой часовой пояс. 
-    Отправь геолокацию кнопкой ниже или пришли мне название своего города
-&lt;keyboard reply&gt;
-&lt;button text="Отправить геолокацию 📍" request_location&gt;
-&lt;/keyboard&gt;</value>
+        <value>Чтобы не писать тебе ночью, нужен твой часовой пояс.
+Отправь геолокацию кнопкой ниже или пришли мне название своего города&lt;keyboard reply&gt;&lt;button text="Отправить геолокацию 📍" request_location&gt;&lt;/keyboard&gt;</value>
     </data>
     <data name="SetupTimeZone_Failed" xml:space="preserve">
-        <value>Не смог найти часовой пояс по твоей геолокации. Пожалуйста, попробуй ещё раз позже</value>
+        <value>Не смог найти часовой пояс по твоей геолокации. Пожалуйста, попробуй ещё раз позже
+&lt;keyboard reply_remove&gt;&lt;/keyboard&gt;</value>
+    </data>
+    <data name="SetupTimeZone_CitiesNotFound" xml:space="preserve">
+        <value>Город не найден :(
+Попробуй указать какой-нибудь город поблизости или прислать свою геолокацию</value>
     </data>
     <data name="UserReturn" xml:space="preserve">
         <value>С возвращением!</value>
@@ -185,10 +188,6 @@
     <data name="UnexpectedError" xml:space="preserve">
         <value>Что-то пошло не так :(
 Попробуй ещё раз попозже</value>
-    </data>
-    <data name="SetupTimeZone_CitiesNotFound" xml:space="preserve">
-        <value>Город не найден :(
-Попробуй указать какой-нибудь город поблизости</value>
     </data>
     <data name="UnknowBotCommand" xml:space="preserve">
         <value>Неизвестная команда</value>

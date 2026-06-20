@@ -8,7 +8,7 @@ public class UserSettings
     public DateTimeOffset Updated { get; protected set; }
     public User? User { get; protected set; }
 
-    public RepeatFrequencyInDay RepeatFrequencyInDay 
+    public RepeatFrequencyInDay RepeatFrequencyInDay
     {
         get;
         set
@@ -30,6 +30,7 @@ public class UserSettings
     {
         UserId = userId;
         RepeatFrequencyInDay = frequencyInDay;
+        Updated = DateTimeOffset.UtcNow;
     }
 
     protected UserSettings() { }

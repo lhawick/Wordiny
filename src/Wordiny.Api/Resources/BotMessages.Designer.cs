@@ -38,7 +38,8 @@ public class BotMessages
 	public static global::System.Globalization.CultureInfo Culture { get; set; }
 	
 	/// <summary>
-	/// Looks up a localized string similar to Нашёл часовой пояс: {0}. Всё верно?
+	/// Looks up a localized string similar to Нашёл часовой пояс: {0}.
+		/// Всё верно?
 		/// <keyboard reply>
 		/// <button text="Да">
 		/// <button text="Нет">
@@ -69,18 +70,22 @@ public class BotMessages
 	public static string SetupFrequency_InvalidInput => ResourceManager.GetString("SetupFrequency_InvalidInput", Culture);
 	
 	/// <summary>
-	/// Looks up a localized string similar to Чтобы не писать тебе ночью, нужен твой часовой пояс. 
-		///     Отправь геолокацию кнопкой ниже или пришли мне название своего города
-		/// <keyboard reply>
-		/// <button text="Отправить геолокацию 📍" request_location>
-		/// </keyboard>.
+	/// Looks up a localized string similar to Чтобы не писать тебе ночью, нужен твой часовой пояс.
+		/// Отправь геолокацию кнопкой ниже или пришли мне название своего города<keyboard reply><button text="Отправить геолокацию 📍" request_location></keyboard>.
 	/// </summary>
 	public static string SetupTimeZone => ResourceManager.GetString("SetupTimeZone", Culture);
 	
 	/// <summary>
-	/// Looks up a localized string similar to Не смог найти часовой пояс по твоей геолокации. Пожалуйста, попробуй ещё раз позже.
+	/// Looks up a localized string similar to Не смог найти часовой пояс по твоей геолокации. Пожалуйста, попробуй ещё раз позже
+		/// <keyboard reply_remove></keyboard>.
 	/// </summary>
 	public static string SetupTimeZone_Failed => ResourceManager.GetString("SetupTimeZone_Failed", Culture);
+	
+	/// <summary>
+	/// Looks up a localized string similar to Город не найден :(
+		/// Попробуй указать какой-нибудь город поблизости или прислать свою геолокацию.
+	/// </summary>
+	public static string SetupTimeZone_CitiesNotFound => ResourceManager.GetString("SetupTimeZone_CitiesNotFound", Culture);
 	
 	/// <summary>
 	/// Looks up a localized string similar to С возвращением!.
@@ -131,12 +136,6 @@ public class BotMessages
 		/// Попробуй ещё раз попозже.
 	/// </summary>
 	public static string UnexpectedError => ResourceManager.GetString("UnexpectedError", Culture);
-	
-	/// <summary>
-	/// Looks up a localized string similar to Город не найден :(
-		/// Попробуй указать какой-нибудь город поблизости.
-	/// </summary>
-	public static string SetupTimeZone_CitiesNotFound => ResourceManager.GetString("SetupTimeZone_CitiesNotFound", Culture);
 	
 	/// <summary>
 	/// Looks up a localized string similar to Неизвестная команда.

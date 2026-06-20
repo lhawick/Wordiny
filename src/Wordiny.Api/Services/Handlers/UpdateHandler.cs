@@ -115,7 +115,7 @@ internal class UpdateHandler : IUpdateHandler
 
     private async Task HandleInnerAsync(Telegram.Bot.Types.Update update, CancellationToken token = default)
     {
-        ArgumentNullException.ThrowIfNull(update, nameof(update));
+        ArgumentNullException.ThrowIfNull(update);
 
         switch (update)
         {
@@ -156,12 +156,6 @@ internal class UpdateHandler : IUpdateHandler
                 }
             case { CallbackQuery: { } callbackQuery }:
                 {
-                    if (callbackQuery.From is null)
-                    {
-                        _logger.LogError("Callback query user is null");
-                        break;
-                    }
-
                     if (string.IsNullOrWhiteSpace(callbackQuery.Data))
                     {
                         _logger.LogError("Callback query data is empty");

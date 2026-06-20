@@ -14,13 +14,15 @@ internal class OxilorApiService : IOxilorApiService
 {
     private readonly HttpClient _httpClient;
 
+    private static JsonSerializerOptions _jsonSerializerOptions = new JsonSerializerOptions
+    {
+        PropertyNameCaseInsensitive = true
+    };
+
     public OxilorApiService(HttpClient httpClient)
     {
         _httpClient = httpClient;
     }
-
-    private record Region(string Name, string Type, string TimeZone, ParentRegion[] ParentRegions);
-    private record ParentRegion(string Name);
 
     public async Task<CityData[]> FindCitiesByNameAsync(string cityName, CancellationToken token = default)
     {
@@ -43,9 +45,9 @@ internal class OxilorApiService : IOxilorApiService
                 response.StatusCode);
         }
 
-        using var responseStream = await response.Content.ReadAsStreamAsync(token);
+        await using var responseStream = await response.Content.ReadAsStreamAsync(token);
 
-        var regionsData = JsonSerializer.Deserialize<Region[]>(responseStream);
+        var regionsData = JsonSerializer.Deserialize<Region[]>(responseStream, _jsonSerializerOptions);
 
         if (regionsData is null)
         {
@@ -59,12 +61,29 @@ internal class OxilorApiService : IOxilorApiService
             .Select(rd =>
             {
                 // Всё кроме континента
-                var parentRegion = string.Join(", ", rd.ParentRegions[..^1].Select(r => r.Name));
+                var parentRegion = string.Join(", ", rd.ParentRegions[..^1]
+                    .Select(r => r.Name)
+                    // Если область = название города, пропускаем
+                    .Where(x => !x.Equals(rd.Name, StringComparison.OrdinalIgnoreCase)));
+                
                 var fullCityLocation = $"{rd.Name}, {parentRegion}";
 
                 return new CityData(fullCityLocation, rd.TimeZone);
             })
             .Take(8)
             .ToArray();
+    }
+
+    private class Region
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Type { get; set; } = string.Empty;
+        public string TimeZone { get; set; } = string.Empty;
+        public ParentRegion[] ParentRegions { get; set; } = [];
+    }
+
+    private class ParentRegion
+    {
+        public string Name { get; set; } = string.Empty;
     }
 }

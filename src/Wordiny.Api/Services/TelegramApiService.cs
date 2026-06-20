@@ -40,7 +40,7 @@ public class TelegramApiService : ITelegramApiService
 
         if (inlineButtons != null)
         {
-            message = AddInlineButtonToMessage(message, inlineButtons);            
+            message = AddInlineButtonsToMessage(message, inlineButtons);            
         }
 
         try
@@ -65,7 +65,7 @@ public class TelegramApiService : ITelegramApiService
         }
     }
 
-    private static string AddInlineButtonToMessage(string message, IEnumerable<InlineButton> inlineButtons)
+    private static string AddInlineButtonsToMessage(string message, IEnumerable<InlineButton> inlineButtons)
     {
         ArgumentNullException.ThrowIfNull(inlineButtons, nameof(inlineButtons));
 

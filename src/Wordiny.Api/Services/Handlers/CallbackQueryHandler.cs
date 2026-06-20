@@ -51,7 +51,7 @@ public class CallbackQueryHandler : ICallbackQueryHandler
             return;
         }
 
-        var callbackType =callbackData[0];
+        var callbackType = callbackData[0];
 
         switch (callbackType)
         {
@@ -74,9 +74,11 @@ public class CallbackQueryHandler : ICallbackQueryHandler
                     await _userService.SetTimeZoneAsync(userId, timeZone, token);
                     await _userService.SetInputStateAsync(userId, UserInputState.ConfirmTimeZone, token);
 
+                    var tzInfo = TimeZoneInfo.FindSystemTimeZoneById(timeZone);
+
                     await _telegramApiService.SendMessageAsync(
                         userId, 
-                        string.Format(BotMessages.ConfirmTimeZone, timeZone), 
+                        string.Format(BotMessages.ConfirmTimeZone, tzInfo.DisplayName), 
                         token: token);
 
                     break;
