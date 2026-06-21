@@ -7,8 +7,19 @@ public class Phrase
     public User? User { get; protected set; }
     public string NativeText { get; protected set; } = string.Empty;
     public string? TranslationText { get; protected set; }
-    public MemoryState MemoryState { get; protected set; }
-    public DateTimeOffset Added { get; protected set; }
+
+    public MemoryState MemoryState
+    {
+        get;
+        protected set
+        {
+            field = value;
+            
+            Updated = DateTimeOffset.UtcNow;
+        }
+    }
+    public DateTimeOffset Added { get; }
+    public DateTimeOffset Updated { get; protected set; }
 
     public Phrase(long userId, string nativeText, string? translationText = null)
     {

@@ -13,7 +13,9 @@ internal class UserSettingsConfig : IEntityTypeConfiguration<UserSettings>
         builder.HasKey(x => x.UserId);
 
         builder.Property(x => x.UserId).HasColumnName("user_id");
-        builder.Property(x => x.RepeatFrequencyInDay).HasColumnName("frequency_in_day");
+        builder.Property(x => x.Updated).HasColumnName("updated");
+        builder.Property(x => x.RepeatFrequencyInDay).HasColumnName("repeat_frequency_in_day");
+        builder.Property(x => x.TimeZone).HasColumnName("time_zone").HasMaxLength(64);
 
         builder.HasIndex(x => x.RepeatFrequencyInDay);
 
